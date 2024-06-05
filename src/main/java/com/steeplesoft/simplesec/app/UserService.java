@@ -1,13 +1,19 @@
 package com.steeplesoft.simplesec.app;
 
+import static io.quarkus.runtime.util.HashUtil.sha256;
+
 import com.steeplesoft.simplesec.app.model.PasswordRecovery;
-import com.steeplesoft.simplesec.app.model.UserAccount;
+import com.steeplesoft.simplesec.app.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -19,25 +25,29 @@ public class UserService {
     @Inject
     protected MessageService messageService;
 
-    public List<UserAccount> getUsers() {
-        return UserAccount.listAll();
+    @ConfigProperty(name = "simplesec.salt", defaultValue = "default")
+    protected String passwordSalt;
+
+    public List<User> getUsers() {
+        return User.listAll();
     }
 
-    public Optional<UserAccount> getUser(long id) {
-        return UserAccount.findByIdOptional(id);
+    public Optional<User> getUser(long id) {
+        return User.findByIdOptional(id);
     }
 
-    public Optional<UserAccount> getUser(String userName, String password) {
-        return UserAccount.find("select u from UserAccount a where u.userName = ?1 and u.password = ?2",
-                userName, password).firstResultOptional();
+    public Optional<User> getUser(String userName, String password) {
+        return User.find("select u from User u where u.userName = ?1 and u.password = ?2",
+                        userName, sha256(password))
+                .firstResultOptional();
     }
 
     @Transactional
-    public UserAccount saveUser(UserAccount userAccount) {
-        List<String> results = passwordValidator.validatePassword(userAccount.password);
+    public User saveUser(User user) {
+        List<String> results = passwordValidator.validatePassword(user.password);
         if (results.isEmpty()) {
-            userAccount.password = encrypt(userAccount.password);
-            userAccount.persist();
+            user.password = hashString(user.password);
+            user.persist();
         } else {
             throw new WebApplicationException(
                     Response.status(Response.Status.BAD_REQUEST)
@@ -45,29 +55,47 @@ public class UserService {
                             .build());
         }
 
-        return userAccount;
+        return user;
     }
 
     @Transactional
-    public String recoverPassword(String emailAddress) {
+    public String generatePasswordRecoveryCode(String emailAddress) {
         String recoveryCode = generateRecoveryCode();
-
-        PasswordRecovery pr = new PasswordRecovery(emailAddress, recoveryCode);
 
         messageService.sendEmail(emailAddress, "Password Recovery",
                 "Your codes is " + recoveryCode);
 
-        pr.persist();
+        new PasswordRecovery(emailAddress, recoveryCode).persist();
 
-        return "";
+        return recoveryCode;
     }
 
-    private String encrypt(String password) {
-        return password;
+    @Transactional
+    public void recoverPassword(String emailAddress, String recoveryCode, String newPassword1, String newPassword2) {
+        if (!newPassword1.equals(newPassword2)) {
+            throw new BadRequestException("Passwords do not match");
+        }
+
+        PasswordRecovery pr = (PasswordRecovery) PasswordRecovery
+                .find("select p from ValidRecoveryToken pr where pr.emailAddress = ?1 and pr.recovertyToken = ?2 and expiryDate <= ?3",
+                        emailAddress, recoveryCode, LocalDateTime.now())
+                .firstResultOptional()
+                .orElseThrow(BadRequestException::new);
+
+        User user = (User) User.find("select u from User a where a.userName = ?1", newPassword1)
+                .firstResultOptional()
+                .orElseThrow(NotFoundException::new);
+
+        user.password = hashString(newPassword1);
+        user.persistAndFlush();
     }
 
     public void deleteUser(Long id) {
-        UserAccount.deleteById(id);
+        User.deleteById(id);
+    }
+
+    private String hashString(String password) {
+        return sha256(password + passwordSalt);
     }
 
     private String generateRecoveryCode() {

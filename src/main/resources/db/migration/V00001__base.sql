@@ -1,9 +1,9 @@
 drop table if exists person;
-drop table if exists useraccount;
+drop table if exists user_account;
 drop sequence if exists person_seq;
-drop sequence if exists useraccount_seq;
+drop sequence if exists user_account_seq;
 
-create table UserAccount
+create table user_account
 (
     id           bigint not null,
     userName     varchar(255),
@@ -14,11 +14,12 @@ create table UserAccount
     city         varchar(100),
     state        varchar(10),
     zipCode      varchar(10),
+    roles        varchar(1000),
     creationDate timestamptz default now(),
     primary key (id)
 );
 
-create table PasswordRecovery
+create table password_recovery
 (
     id  bigint not null,
     userName varchar(255),
@@ -26,11 +27,14 @@ create table PasswordRecovery
     expiryDate timestamptz
 );
 
-create sequence UserAccount_SEQ start with 1 increment by 1;
-create sequence PasswordRecovery_SEQ start with 1 increment by 1;
+create or replace view ValidRecoveryToken as
+    select * from password_recovery where expiryDate <= now();
 
-insert into useraccount (id, userName, password) values (1, 'jason@steeplesoft.com', 'password');
-insert into useraccount (id, userName, password) values (2, 'jason@theleehouse.net', 'bar');
-insert into useraccount (id, userName, password) values (3, 'jason+test@theleehouse.net', 'baz');
+create sequence user_account_seq start with 1 increment by 1;
+create sequence password_recovery_seq start with 1 increment by 1;
 
-ALTER SEQUENCE useraccount_seq RESTART WITH 4;
+insert into user_account (id, userName, password, roles) values (1, 'jason@steeplesoft.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'ADMIN,USER');
+insert into user_account (id, userName, password, roles) values (2, 'jason@theleehouse.net', 'bar', 'ADMIN');
+insert into user_account (id, userName, password, roles) values (3, 'jason+test@theleehouse.net', 'baz', 'USER');
+
+ALTER SEQUENCE user_account_seq RESTART WITH 4;

@@ -1,6 +1,6 @@
 package com.steeplesoft.simplesec.app;
 
-import com.steeplesoft.simplesec.app.model.UserAccount;
+import com.steeplesoft.simplesec.app.model.User;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -45,8 +45,8 @@ public class Resource {
     @Path("/users")
     @PermitAll
     @RunOnVirtualThread
-    public List<UserAccount> getUsers() {
-        return  UserAccount.listAll();
+    public List<User> getUsers() {
+        return  User.listAll();
     }
 
 

@@ -2,14 +2,12 @@ package com.steeplesoft.simplesec.app;
 
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
-import com.steeplesoft.simplesec.app.model.UserAccount;
+import com.steeplesoft.simplesec.app.model.User;
 import com.steeplesoft.simplesec.app.payload.LoginFormInput;
-import io.quarkus.runtime.annotations.ConfigItem;
+import com.steeplesoft.simplesec.app.payload.PassowrdRecoveryFormInput;
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.enterprise.context.RequestScoped;
@@ -50,7 +48,7 @@ public class LoginResource {
     @Path("/login")
     @POST
     public String login(LoginFormInput loginInfo) {
-        UserAccount userAccount = userService.getUser(loginInfo.userName, loginInfo.password)
+        User userAccount = userService.getUser(loginInfo.userName, loginInfo.password)
                 .orElseThrow(AuthenticationFailedException::new);
 
         return generateJwt(userAccount);
@@ -59,14 +57,14 @@ public class LoginResource {
     @RunOnVirtualThread
     @Path("/users")
     @GET
-    public List<UserAccount> getUsers() {
+    public List<User> getUsers() {
         return userService.getUsers();
     }
 
     @Path("/users/{id}")
     @POST
-    public Response updateUser(@PathParam("id") Long id, UserAccount userAccount) {
-        UserAccount existing = userService.getUser(id).orElseThrow(NotFoundException::new);
+    public Response updateUser(@PathParam("id") Long id, User userAccount) {
+        User existing = userService.getUser(id).orElseThrow(NotFoundException::new);
 
         if (!userAccount.userName.equals(existing.userName)) {
             throw new BadRequestException();
@@ -88,23 +86,30 @@ public class LoginResource {
     @RunOnVirtualThread
     @Path("/register")
     @POST
-    public UserAccount register(LoginFormInput registration) {
-        return userService.saveUser(new UserAccount(registration.userName, registration.password));
+    public User register(LoginFormInput registration) {
+        return userService.saveUser(new User(registration.userName, registration.password));
     }
 
     @POST
-    @Path("/code")
+    @Path("/forgotPassword")
     @Produces(MediaType.TEXT_PLAIN)
-    public String code(LoginFormInput loginInfo) {
-        return userService.recoverPassword(loginInfo.userName);
+    public String forgotPassword(LoginFormInput loginInfo) {
+        return userService.generatePasswordRecoveryCode(loginInfo.userName);
     }
 
+    @POST
+    @Path("/recoverPassword")
+    public Response recoverPassword(PassowrdRecoveryFormInput input) {
+        userService.recoverPassword(input.emailAddress, input.recoveryToken, input.newPassword1, input.newPassword2);
 
-    private String generateJwt(UserAccount userName) {
+        return Response.ok().build();
+    }
+
+    private String generateJwt(User user) {
         return Jwt.issuer(issuer)
-                .upn(userName.userName)
+                .upn(user.userName)
                 .expiresIn(Duration.ofMinutes(durationInMinutes))
-                .groups(new HashSet<>(Arrays.asList("User", "Admin")))
+                .groups(Set.of(user.roles.split(",")))
                 .sign();
     }
 
