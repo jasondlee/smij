@@ -34,7 +34,7 @@ create sequence user_account_seq start with 1 increment by 1;
 create sequence password_recovery_seq start with 1 increment by 1;
 
 insert into user_account (id, userName, password, roles) values (1, 'jason@steeplesoft.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'ADMIN,USER');
-insert into user_account (id, userName, password, roles) values (2, 'jason@theleehouse.net', 'bar', 'ADMIN');
-insert into user_account (id, userName, password, roles) values (3, 'jason+test@theleehouse.net', 'baz', 'USER');
+insert into user_account (id, userName, password, roles) values (2, 'jason@theleehouse.net', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'ADMIN');
+insert into user_account (id, userName, password, roles) values (3, 'jason+test@theleehouse.net', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'USER');
 
 ALTER SEQUENCE user_account_seq RESTART WITH 4;

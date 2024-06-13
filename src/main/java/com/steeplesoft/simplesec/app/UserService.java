@@ -18,6 +18,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+// TODOs:
+// - JWT caching and validation
+//   - In-memory
+//   - Database ?
+// - JWT invalidation
+// - Override JWT verification to check cache
+
 @ApplicationScoped
 public class UserService {
     @Inject
