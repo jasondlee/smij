@@ -4,7 +4,7 @@ drop sequence if exists user_account_seq;
 create table user_account
 (
     id           bigint not null,
-    userName     varchar(255),
+    userName     varchar(255) unique,
     password     varchar(255),
     phoneNumber  varchar(50),
     address1     varchar(100),
@@ -39,8 +39,8 @@ create or replace view ValidRecoveryToken as
 create sequence user_account_seq start with 1 increment by 1;
 create sequence password_recovery_seq start with 1 increment by 1;
 
-insert into user_account (id, userName, password, roles) values (1, 'admin', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'ADMIN');
-insert into user_account (id, userName, password, roles) values (2, 'jason@steeplesoft.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'ADMIN,USER');
-insert into user_account (id, userName, password, roles) values (3, 'jason@theleehouse.net', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'USER');
+insert into user_account (id, userName, password, roles) values (1, 'admin@example.com', '81083ebca8317d1adc41728e3ace42e473879d4b51e443b9ff66d743a61a1155', 'ADMIN');
+insert into user_account (id, userName, password, roles) values (2, 'admin2@example.com', '81083ebca8317d1adc41728e3ace42e473879d4b51e443b9ff66d743a61a1155', 'ADMIN,USER');
+insert into user_account (id, userName, password, roles) values (3, 'user@example.com', '81083ebca8317d1adc41728e3ace42e473879d4b51e443b9ff66d743a61a1155', 'USER');
 
 ALTER SEQUENCE user_account_seq RESTART WITH 4;

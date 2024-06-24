@@ -12,7 +12,7 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
-import com.steeplesoft.simplesec.app.payload.LoginFormInput;
+import com.steeplesoft.simplesec.app.payload.LoginInput;
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -83,7 +83,17 @@ public class UserService {
         return user;
     }
 
-    public String login(LoginFormInput loginInfo) {
+    @Transactional
+    public User createUser(User user) {
+        if (User.find("select u from User u where u.userName = ?1", user.userName).count() != 0) {
+            throw new BadRequestException("User already exists");
+        }
+
+        return saveUser(user);
+    }
+
+    @Transactional
+    public String login(LoginInput loginInfo) {
         User userAccount = getUser(loginInfo.userName);
         checkIfUserLocked(userAccount);
 
@@ -106,15 +116,12 @@ public class UserService {
     }
 
     @Transactional
-    public String generatePasswordRecoveryCode(String emailAddress) {
+    public void generatePasswordRecoveryCode(String emailAddress) {
         String recoveryCode = generateRecoveryCode();
 
-        messageService.sendEmail(emailAddress, "Password Recovery",
-                "Your codes is " + recoveryCode);
+        messageService.sendEmail(emailAddress, "Password Recovery", "Your code is " + recoveryCode);
 
         new PasswordRecovery(emailAddress, recoveryCode).persist();
-
-        return recoveryCode;
     }
 
     @Transactional
