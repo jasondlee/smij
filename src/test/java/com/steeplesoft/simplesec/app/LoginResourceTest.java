@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
+import com.steeplesoft.simplesec.app.payload.PasswordRecoveryInput;
 import com.steeplesoft.simplesec.app.resources.LoginResource;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -91,20 +92,46 @@ public class LoginResourceTest {
 
     @Test
     public void testForgotPassword() throws JsonProcessingException {
-        LoginInput form = new LoginInput();
-        form.userName = "admin@example.com";
+        // Request reset code
+        LoginInput login = new LoginInput();
+        login.userName = "admin@example.com";
+
         given().when()
                 .contentType(ContentType.JSON)
-                .body(mapper.writeValueAsString(form))
+                .body(mapper.writeValueAsString(login))
                 .post("/forgotPassword")
                 .then()
                 .statusCode(204);
 
-        List<MailMessage> sent = mailbox.getMailMessagesSentTo(form.userName);
+        List<MailMessage> sent = mailbox.getMailMessagesSentTo(login.userName);
         assertThat(sent.size(), CoreMatchers.is(1));
 
         MailMessage first = sent.getFirst();
         assertThat(first.getSubject(), CoreMatchers.containsString("Password Recovery"));
         assertThat(first.getText(), CoreMatchers.containsString("Your code is"));
+        String recoveryCode = first.getText().split(" ")[3];
+
+        // Reset password using code
+        PasswordRecoveryInput recovery = new PasswordRecoveryInput();
+        recovery.emailAddress = login.userName;
+        recovery.recoveryToken = recoveryCode;
+        recovery.newPassword1 = "g-uDoBum2naAzvovk_8E";
+        recovery.newPassword2 = "g-uDoBum2naAzvovk_8E";
+
+        given().when()
+                .contentType(ContentType.JSON)
+                .body(mapper.writeValueAsString(recovery))
+                .post("/recoverPassword")
+                .then()
+                .statusCode(200);
+
+        // Login with new password
+        login.password = recovery.newPassword1;
+        given().when()
+                .contentType(ContentType.JSON)
+                .body(mapper.writeValueAsString(login))
+                .post("/login")
+                .then()
+                .statusCode(200);
     }
 }

@@ -13,6 +13,8 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
 import com.steeplesoft.simplesec.app.payload.LoginInput;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -102,7 +104,7 @@ public class UserService {
             if (userAccount.failAttempts >= maxAttempts) {
                 userAccount.lockedUntil = LocalDateTime.now().plusMinutes(lockDuration);
             }
-            userAccount.persistAndFlush();
+            userAccount.persist();
             throw new AuthenticationFailedException();
         } else {
             return generateJwt(userAccount);
@@ -130,18 +132,18 @@ public class UserService {
             throw new BadRequestException("Passwords do not match");
         }
 
-        PasswordRecovery pr = (PasswordRecovery) PasswordRecovery
-                .find("select p from ValidRecoveryToken pr where pr.emailAddress = ?1 and pr.recovertyToken = ?2 and expiryDate <= ?3",
+        PasswordRecovery
+                .find("select pr from PasswordRecovery pr where pr.userName = ?1 and pr.recoveryToken = ?2 and expiryDate > ?3",
                         emailAddress, recoveryCode, LocalDateTime.now())
                 .firstResultOptional()
                 .orElseThrow(BadRequestException::new);
 
-        User user = (User) User.find("select u from User a where a.userName = ?1", newPassword1)
+        User user = (User) User.find("select u from User u where u.userName = ?1", emailAddress)
                 .firstResultOptional()
                 .orElseThrow(NotFoundException::new);
 
         user.password = hashString(newPassword1);
-        user.persistAndFlush();
+        user.persist();
     }
 
     public void deleteUser(Long id) {
