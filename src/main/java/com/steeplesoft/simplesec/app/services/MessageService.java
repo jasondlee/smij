@@ -1,4 +1,4 @@
-package com.steeplesoft.simplesec.app;
+package com.steeplesoft.simplesec.app.services;
 
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
