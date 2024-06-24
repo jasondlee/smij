@@ -41,3 +41,13 @@ nb-configuration.xml
 
 # Plugin directory
 /.quarkus/cli/plugins/
+
+
+config/
+genkey.sh
+simplesec-demo/
+src/main/resources/private.pem
+src/main/resources/privateKey.pem
+src/main/resources/public.pem
+src/main/resources/publicKey.pem
+
