@@ -5,6 +5,7 @@ import com.steeplesoft.simplesec.app.model.User;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
 import com.steeplesoft.simplesec.app.payload.PasswordRecoveryInput;
 import com.steeplesoft.simplesec.app.services.UserService;
+import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -29,7 +30,11 @@ public class LoginResource {
     @Path("/login")
     @POST
     public String login(LoginInput loginInfo) {
-        return userService.login(loginInfo);
+        String token = userService.login(loginInfo);
+        if (token == null) {
+            throw new AuthenticationFailedException();
+        }
+        return token;
     }
 
     @RunOnVirtualThread

@@ -1,26 +1,25 @@
-package com.steeplesoft.simplesec.app;
+package com.steeplesoft.simplesec.app.resources;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
 import com.steeplesoft.simplesec.app.payload.PasswordRecoveryInput;
-import com.steeplesoft.simplesec.app.resources.LoginResource;
+import com.steeplesoft.simplesec.app.services.UserServiceTest;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.vertx.ext.mail.MailMessage;
+import jakarta.inject.Inject;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import jakarta.inject.Inject;
-import java.util.List;
 
 @QuarkusTest
 @TestHTTPEndpoint(LoginResource.class)
@@ -39,7 +38,7 @@ public class LoginResourceTest {
     public void testLogin() throws JsonProcessingException {
         LoginInput form = new LoginInput();
         form.userName = "admin2@example.com";
-        form.password = "password";
+        form.password = UserServiceTest.PASSWORD_GOOD;
 
         given().when()
                 .contentType(ContentType.JSON)
@@ -67,7 +66,7 @@ public class LoginResourceTest {
     public void testRegistration() throws JsonProcessingException {
         LoginInput form = new LoginInput();
         form.userName = "newuser@example.com";
-        form.password = "wwRmqdr#Kuw93thkfzWaz";
+        form.password = UserServiceTest.PASSWORD_GOOD;
         given().when()
                 .contentType(ContentType.JSON)
                 .body(mapper.writeValueAsString(form))
@@ -81,7 +80,7 @@ public class LoginResourceTest {
     public void testDuplicateRegistration() throws JsonProcessingException {
         LoginInput form = new LoginInput();
         form.userName = "admin@example.com";
-        form.password = "wwRmqdr#Kuw93thkfzWaz";
+        form.password = UserServiceTest.PASSWORD_GOOD;
         given().when()
                 .contentType(ContentType.JSON)
                 .body(mapper.writeValueAsString(form))
@@ -115,8 +114,8 @@ public class LoginResourceTest {
         PasswordRecoveryInput recovery = new PasswordRecoveryInput();
         recovery.emailAddress = login.userName;
         recovery.recoveryToken = recoveryCode;
-        recovery.newPassword1 = "g-uDoBum2naAzvovk_8E";
-        recovery.newPassword2 = "g-uDoBum2naAzvovk_8E";
+        recovery.newPassword1 = UserServiceTest.PASSWORD_GOOD;
+        recovery.newPassword2 = UserServiceTest.PASSWORD_GOOD;
 
         given().when()
                 .contentType(ContentType.JSON)

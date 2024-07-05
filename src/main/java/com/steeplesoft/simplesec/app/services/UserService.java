@@ -2,30 +2,31 @@ package com.steeplesoft.simplesec.app.services;
 
 import static io.quarkus.runtime.util.HashUtil.sha256;
 
-import com.steeplesoft.simplesec.app.model.PasswordRecovery;
-import com.steeplesoft.simplesec.app.model.User;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
-
-import com.steeplesoft.simplesec.app.payload.LoginInput;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.security.AuthenticationFailedException;
-import io.smallrye.jwt.build.Jwt;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+
+import com.steeplesoft.simplesec.app.model.PasswordRecovery;
+import com.steeplesoft.simplesec.app.model.User;
+import com.steeplesoft.simplesec.app.payload.LoginInput;
+import io.quarkus.security.AuthenticationFailedException;
+import io.smallrye.jwt.build.Jwt;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.TransactionManager;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.UserTransaction;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.hibernate.Transaction;
 
 // TODOs:
 // - JWT caching and validation
@@ -43,11 +44,12 @@ public class UserService {
     protected PasswordValidator passwordValidator;
     @Inject
     protected MessageService messageService;
+
     @ConfigProperty(name = "simplesec.salt", defaultValue = "default")
     protected String passwordSalt;
-    @ConfigProperty(name="mp.jwt.verify.issuer", defaultValue = "https://simplesec")
+    @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "https://simplesec")
     protected String issuer;
-    @ConfigProperty(name="simplesec.token.duration", defaultValue = "1440")
+    @ConfigProperty(name = "simplesec.token.duration", defaultValue = "1440")
     protected int tokenDuration;
     @ConfigProperty(name = "simplesec.maxAttempts", defaultValue = "5")
     protected int maxAttempts;
@@ -63,7 +65,9 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        User user = getUser(jwt.getSubject());
+        User user = getUser(jwt.getSubject())
+                .orElseThrow(() -> new ServerErrorException("Unable to determaine current user",
+                        Response.Status.INTERNAL_SERVER_ERROR));
         checkIfUserLocked(user);
 
         return user;
@@ -71,6 +75,7 @@ public class UserService {
 
     @Transactional
     public User saveUser(User user) {
+        // TODO: Check to see if password has changed
         List<String> results = passwordValidator.validatePassword(user.password);
         if (results.isEmpty()) {
             user.password = hashString(user.password);
@@ -96,25 +101,25 @@ public class UserService {
 
     @Transactional
     public String login(LoginInput loginInfo) {
-        User userAccount = getUser(loginInfo.userName);
-        checkIfUserLocked(userAccount);
+        User user = getUser(loginInfo.userName)
+                .orElseThrow(AuthenticationFailedException::new);
+        checkIfUserLocked(user);
 
-        if (!hashString(loginInfo.password).equals(userAccount.password)) {
-            userAccount.failAttempts++;
-            if (userAccount.failAttempts >= maxAttempts) {
-                userAccount.lockedUntil = LocalDateTime.now().plusMinutes(lockDuration);
+        if (!hashString(loginInfo.password).equals(user.password)) {
+            user.failAttempts += 1;
+            if (user.failAttempts >= maxAttempts) {
+                user.lockedUntil = LocalDateTime.now().plusMinutes(lockDuration);
             }
-            userAccount.persist();
-            throw new AuthenticationFailedException();
+            user.persistAndFlush();
+            return null;
         } else {
-            return generateJwt(userAccount);
+            return generateJwt(user);
         }
     }
 
-    private static User getUser(String userName) {
-        return (User) User.find("select u from User u where u.userName = ?1", userName)
-                .firstResultOptional()
-                .orElseThrow(AuthenticationFailedException::new);
+    private static Optional<User> getUser(String userName) {
+        return User.find("select u from User u where u.userName = ?1", userName)
+                .firstResultOptional();
     }
 
     @Transactional
@@ -146,11 +151,12 @@ public class UserService {
         user.persist();
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         User.deleteById(id);
     }
 
-    public String generateJwt(User user) {
+    private String generateJwt(User user) {
         return Jwt.issuer(issuer)
                 .subject(user.userName)
                 .upn(user.userName)
