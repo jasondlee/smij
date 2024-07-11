@@ -27,10 +27,11 @@ create table password_recovery
     expiryDate timestamptz
 );
 
-create table jwt
+create table jwt_metadata
 (
-    id  bigint not null,
-    token text
+    id  text not null,
+    expiresAt bigint,
+    revoked boolean
 );
 
 create or replace view ValidRecoveryToken as
@@ -39,9 +40,9 @@ create or replace view ValidRecoveryToken as
 create sequence user_account_seq start with 1 increment by 1;
 create sequence password_recovery_seq start with 1 increment by 1;
 
-insert into user_account (id, userName, password, roles) values (1, 'admin@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN');
-insert into user_account (id, userName, password, roles) values (2, 'admin2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN,USER');
-insert into user_account (id, userName, password, roles) values (3, 'user@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER');
-insert into user_account (id, userName, password, roles, lockedUntil) values (4, 'locked@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER', '2199-12-31 23:59:29');
+insert into user_account (id, userName, password, roles) values (-1, 'admin@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN');
+insert into user_account (id, userName, password, roles) values (-2, 'admin2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN,USER');
+insert into user_account (id, userName, password, roles) values (-3, 'user@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER');
+insert into user_account (id, userName, password, roles, lockedUntil) values (-4, 'locked@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER', '2199-12-31 23:59:29');
 
-ALTER SEQUENCE user_account_seq RESTART WITH 5;
+--ALTER SEQUENCE user_account_seq RESTART WITH 5;
