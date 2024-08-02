@@ -44,16 +44,19 @@ public class UserResource {
     }
 
     @Path("/{id}")
+    @GET
+    @RolesAllowed("ADMIN")
+    public User getUser(@PathParam("id") Long id) {
+        return userService.getUser(id).orElseThrow(NotFoundException::new);
+    }
+
+    @Path("/{id}")
     @POST
     @RolesAllowed("ADMIN")
     public Response updateUser(@PathParam("id") Long id, User userAccount) {
-        User existing = userService.getUser(id).orElseThrow(NotFoundException::new);
 
-        if (!userAccount.userName.equals(existing.userName)) {
-            throw new BadRequestException();
-        }
 
-        userService.saveUser(userAccount);
+        userService.updateUser(id, userAccount);
 
         return Response.ok().build();
     }

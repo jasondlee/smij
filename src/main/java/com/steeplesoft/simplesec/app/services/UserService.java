@@ -16,10 +16,7 @@ import com.steeplesoft.simplesec.app.model.PasswordRecovery;
 import com.steeplesoft.simplesec.app.model.User;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
 import io.quarkus.security.AuthenticationFailedException;
-import io.smallrye.jwt.auth.principal.JWTParser;
-import io.smallrye.jwt.auth.principal.ParseException;
 import io.smallrye.jwt.build.Jwt;
-import io.smallrye.jwt.build.JwtClaimsBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -61,6 +58,8 @@ public class UserService {
     protected int maxAttempts;
     @ConfigProperty(name = "simplesec.lockDuration", defaultValue = "5")
     protected int lockDuration;
+    @ConfigProperty(name = "simplesec.jwt.revocation.support", defaultValue = "false")
+    protected boolean revocationSupport;
 
     public List<User> getUsers() {
         return User.listAll();
@@ -82,18 +81,36 @@ public class UserService {
     @Transactional
     public User saveUser(User user) {
         // TODO: Check to see if password has changed
-        List<String> results = passwordValidator.validatePassword(user.password);
-        if (results.isEmpty()) {
-            user.password = hashString(user.password);
-            user.persist();
-        } else {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.BAD_REQUEST)
-                            .entity("Invalid password:\n" + String.join("\n", results))
-                            .build());
-        }
+        validatePassword(user);
+        user.persist();
 
         return user;
+    }
+
+    private void validatePassword(User user) {
+        if (user.password != null) {
+            List<String> results = passwordValidator.validatePassword(user.password);
+            if (results.isEmpty()) {
+                user.password = hashString(user.password);
+            } else {
+                throw new WebApplicationException(
+                        Response.status(Response.Status.BAD_REQUEST)
+                                .entity("Invalid password:\n" + String.join("\n", results))
+                                .build());
+            }
+        }
+    }
+
+    @Transactional
+    public void updateUser(Long id, User userAccount) {
+        User existing = getUser(id).orElseThrow(NotFoundException::new);
+
+        if (!userAccount.id.equals(existing.id)) {
+            throw new BadRequestException();
+        }
+
+        validatePassword(userAccount);
+        User.getEntityManager().merge(userAccount);
     }
 
     @Transactional
@@ -119,14 +136,19 @@ public class UserService {
             user.persistAndFlush();
             return null;
         } else {
-            String jwt = generateJwt(user);
-            return jwt;
+            return generateJwt(user);
         }
     }
 
     private static Optional<User> getUser(String userName) {
-        return User.find("select u from User u where u.userName = ?1", userName)
-                .firstResultOptional();
+        Optional<User> user = Optional.empty();
+        try {
+            user = User.find("select u from User u where u.userName = ?1", userName)
+                    .firstResultOptional();
+        } catch (NotFoundException e) {
+            System.out.println("hi");
+        }
+        return user;
     }
 
     @Transactional
@@ -163,9 +185,6 @@ public class UserService {
         User.deleteById(id);
     }
 
-    @Inject
-    JWTParser parser;
-
     private String generateJwt(User user) {
         String token = Jwt.issuer(issuer)
                 .subject(user.userName)
@@ -174,14 +193,16 @@ public class UserService {
                 .groups(Set.of(user.roles.split(",")))
                 .sign();
 
-        try {
-            JwtClaims claims = JwtClaims.parse(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), StandardCharsets.UTF_8));
-            JwtMetadata metadata = new JwtMetadata();
-            metadata.id = claims.getJwtId();
-            metadata.expiresAt = claims.getExpirationTime().getValueInMillis();
-            metadata.persist();
-        } catch (InvalidJwtException | MalformedClaimException e) {
-            throw new RuntimeException(e);
+        if (revocationSupport) {
+            try {
+                JwtClaims claims = JwtClaims.parse(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), StandardCharsets.UTF_8));
+                JwtMetadata metadata = new JwtMetadata();
+                metadata.id = claims.getJwtId();
+                metadata.expiresAt = claims.getExpirationTime().getValueInMillis();
+                metadata.persist();
+            } catch (InvalidJwtException | MalformedClaimException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return token;

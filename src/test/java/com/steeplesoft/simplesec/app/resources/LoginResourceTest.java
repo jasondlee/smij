@@ -24,7 +24,8 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 @TestHTTPEndpoint(LoginResource.class)
 public class LoginResourceTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Inject
+    protected ObjectMapper mapper;
 
     @Inject
     MockMailbox mailbox;
