@@ -228,7 +228,7 @@ public class UserService {
 
     private void checkIfUserLocked(User user) {
         if (user.lockedUntil != null) {
-            throw new BadRequestException("User account is locked. Please try waiting or resetting password");
+            throw new AuthenticationFailedException("User account is locked. Please try waiting or resetting password");
         }
     }
 }

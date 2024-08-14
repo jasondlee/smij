@@ -16,7 +16,7 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <skipITs>true</skipITs>
         <version.compiler-plugin>3.13.0</version.compiler-plugin>
-        <version.quarkus.platform>3.11.3</version.quarkus.platform>
+        <version.quarkus.platform>3.13.2</version.quarkus.platform>
         <version.surefire-plugin>3.2.5</version.surefire-plugin>
     </properties>
     <dependencyManagement>
@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.25.3</version>
+            <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>

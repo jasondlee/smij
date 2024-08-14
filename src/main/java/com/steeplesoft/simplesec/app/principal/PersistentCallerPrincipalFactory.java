@@ -19,9 +19,6 @@ import org.eclipse.microprofile.jwt.Claims;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 
-//@ApplicationScoped
-//@Alternative
-//@Priority(1000)
 public class PersistentCallerPrincipalFactory extends JWTCallerPrincipalFactory {
     @Override
     @Transactional

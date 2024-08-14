@@ -54,6 +54,18 @@ public class UserResourceTest {
         updateUser(403);
     }
 
+    @Test
+    @TestSecurity(user = "admin@example.com", roles = {"ADMIN"})
+    public void deleteUserAsAdmin() {
+        deleteUser(-4, 200);
+    }
+
+    @Test
+    @TestSecurity(user = "user@example.com", roles = {"USER"})
+    public void deleteUserAsNonAdmin() {
+        deleteUser(-5,403);
+    }
+
     private void updateUser(int expected) throws JsonProcessingException {
         User user = new User();
         user.id = -3L;
@@ -65,18 +77,6 @@ public class UserResourceTest {
                 .post("" + user.id)
                 .then()
                 .statusCode(expected);
-    }
-
-    @Test
-    @TestSecurity(user = "admin@example.com", roles = {"ADMIN"})
-    public void deleteUserAsAdmin() {
-        deleteUser(-4, 200);
-    }
-
-    @Test
-    @TestSecurity(user = "user@example.com", roles = {"USER"})
-    public void deleteUserAsNonAdmin() {
-        deleteUser(-5,403);
     }
 
     private void getAllUsers(int expected) {

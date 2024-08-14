@@ -54,8 +54,6 @@ public class UserResource {
     @POST
     @RolesAllowed("ADMIN")
     public Response updateUser(@PathParam("id") Long id, User userAccount) {
-
-
         userService.updateUser(id, userAccount);
 
         return Response.ok().build();

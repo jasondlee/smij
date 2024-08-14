@@ -75,12 +75,12 @@ public class UserServiceTest {
         for (int i = 0; i < maxAttempts; i++) {
             userService.login(loginInput);
         }
-        assertThrows(BadRequestException.class, () -> userService.login(loginInput));
+        assertThrows(AuthenticationFailedException.class, () -> userService.login(loginInput));
     }
 
     @Test
     public void loginLockedUser() {
         LoginInput loginInput = new LoginInput("locked@example.com", PASSWORD_GOOD);
-        assertThrows(BadRequestException.class, () -> userService.login(loginInput));
+        assertThrows(AuthenticationFailedException.class, () -> userService.login(loginInput));
     }
 }
