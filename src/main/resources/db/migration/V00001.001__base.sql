@@ -1,7 +1,4 @@
-drop table if exists user_account;
-drop sequence if exists user_account_seq;
-
-create table user_account
+create table if not exists user_account
 (
     id           bigint not null,
     userName     varchar(255) unique,
@@ -19,7 +16,7 @@ create table user_account
     primary key (id)
 );
 
-create table password_recovery
+create table if not exists password_recovery
 (
     id  bigint not null,
     userName varchar(255),
@@ -27,7 +24,7 @@ create table password_recovery
     expiryDate timestamptz
 );
 
-create table jwt_metadata
+create table if not exists jwt_metadata
 (
     id  text not null,
     expiresAt bigint,
@@ -37,9 +34,10 @@ create table jwt_metadata
 create or replace view ValidRecoveryToken as
     select * from password_recovery where expiryDate <= now();
 
-create sequence user_account_seq start with 1 increment by 1;
-create sequence password_recovery_seq start with 1 increment by 1;
+create sequence if not exists user_account_seq start with 1 increment by 1;
+create sequence if not exists password_recovery_seq start with 1 increment by 1;
 
+delete from user_account where id < 0;
 insert into user_account (id, userName, password, roles) values (-1, 'admin@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN');
 insert into user_account (id, userName, password, roles) values (-2, 'admin2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN,USER');
 insert into user_account (id, userName, password, roles) values (-3, 'user@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER');
