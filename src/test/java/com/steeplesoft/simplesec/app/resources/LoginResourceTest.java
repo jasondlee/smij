@@ -93,8 +93,7 @@ public class LoginResourceTest {
     @Test
     public void testForgotPassword() throws JsonProcessingException {
         // Request reset code
-        LoginInput login = new LoginInput();
-        login.userName = "admin@example.com";
+        LoginInput login = new LoginInput("admin@example.com");
 
         given().when()
                 .contentType(ContentType.JSON)

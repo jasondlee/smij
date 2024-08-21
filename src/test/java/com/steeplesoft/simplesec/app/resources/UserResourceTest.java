@@ -4,7 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.steeplesoft.simplesec.app.model.User;
+import com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -67,14 +67,14 @@ public class UserResourceTest {
     }
 
     private void updateUser(int expected) throws JsonProcessingException {
-        User user = new User();
-        user.id = -3L;
-        user.userName = "user@example.com";
-        user.city = "new city";
+        UserAccount user = new UserAccount();
+        user.setId(-3L);
+        user.setUserName("user@example.com");
+        user.setCity("new city");
         given().when()
                 .contentType(ContentType.JSON)
                 .body(mapper.writeValueAsString(user))
-                .post("" + user.id)
+                .post("" + user.getId())
                 .then()
                 .statusCode(expected);
     }

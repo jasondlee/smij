@@ -1,13 +1,12 @@
 package com.steeplesoft.simplesec.app.resources;
 
 
-import com.steeplesoft.simplesec.app.model.User;
+import com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
 import com.steeplesoft.simplesec.app.payload.PasswordRecoveryInput;
 import com.steeplesoft.simplesec.app.services.UserService;
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.common.annotation.RunOnVirtualThread;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -15,7 +14,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
 import jakarta.ws.rs.core.Response;
 
 @Path("/_sec")
@@ -40,8 +38,12 @@ public class LoginResource {
     @RunOnVirtualThread
     @Path("/register")
     @POST
-    public User register(LoginInput registration) {
-        return userService.createUser(new User(registration.userName, registration.password));
+    public UserAccount register(LoginInput registration) {
+        UserAccount user = new UserAccount();
+        user.setUserName(registration.userName);
+        user.setPassword(registration.password);
+
+        return userService.saveUser(user);
     }
 
     @POST

@@ -1,14 +1,11 @@
 package com.steeplesoft.simplesec.app.resources;
 
-import com.steeplesoft.simplesec.app.model.User;
-import com.steeplesoft.simplesec.app.services.PasswordValidator;
+import com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount;
 import com.steeplesoft.simplesec.app.services.UserService;
-import io.smallrye.common.annotation.RunOnVirtualThread;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -32,28 +29,28 @@ public class UserResource {
     @Path("/")
     @GET
     @RolesAllowed("ADMIN")
-    public List<User> getUsers() {
+    public List<UserAccount> getUsers() {
         return userService.getUsers();
     }
 
     @Path("/me")
     @GET
     @RolesAllowed({"ADMIN","USER"})
-    public User getUser() {
+    public UserAccount getUser() {
         return userService.getCurrentUser();
     }
 
     @Path("/{id}")
     @GET
     @RolesAllowed("ADMIN")
-    public User getUser(@PathParam("id") Long id) {
+    public UserAccount getUser(@PathParam("id") Long id) {
         return userService.getUser(id).orElseThrow(NotFoundException::new);
     }
 
     @Path("/{id}")
     @POST
     @RolesAllowed("ADMIN")
-    public Response updateUser(@PathParam("id") Long id, User userAccount) {
+    public Response updateUser(@PathParam("id") Long id, UserAccount userAccount) {
         userService.updateUser(id, userAccount);
 
         return Response.ok().build();
