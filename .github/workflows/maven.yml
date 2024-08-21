@@ -1,0 +1,59 @@
+name: Build Steeplesoft Backend
+
+on:
+  workflow_dispatch:
+    branches:
+      - '**'
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 21
+        cache: 'maven'
+        server-id: steeplesoft-repository
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+
+    - name: Restore cached Maven packages
+      id: cache-maven-packages
+      uses: actions/cache/restore@v3
+      with:
+        path: |
+          ~/.m2
+          ~/.local/share/containers
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+
+    - name: Build and deploy
+      run: mvn -B -fae clean deploy -Dgithub=true
+      env:
+        MAVEN_USERNAME: ${{ secrets.SS_REPO_NAME }}
+        MAVEN_PASSWORD: ${{ secrets.SS_REPO_TOKEN }}
+
+    - name: Cache Maven packages
+      uses: actions/cache/save@v3
+      with:
+        path: |
+          ~/.m2
+          ~/.local/share/containers
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: maven-build-artifacts
+        path: '**/target/*.jar'
+        retention-days: 5
