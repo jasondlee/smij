@@ -1,4 +1,4 @@
-package com.steeplesoft.simplesec.app.model;
+package com.steeplesoft.simplesec.app;
 
 import io.quarkus.runtime.annotations.StaticInitSafe;
 import io.smallrye.config.ConfigMapping;

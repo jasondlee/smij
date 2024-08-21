@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 
-import com.steeplesoft.simplesec.app.model.RulesConfig;
+import com.steeplesoft.simplesec.app.RulesConfig;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.EnglishSequenceData;

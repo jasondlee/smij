@@ -9,25 +9,21 @@
     <properties>
         <flyway.password>steeplesoft</flyway.password>
         <flyway.user>steeplesoft</flyway.user>
+
         <maven.compiler.release>21</maven.compiler.release>
+
+        <jooq.outputdir>${project.basedir}/src/main/jooq/</jooq.outputdir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <jooq.outputdir>${project.basedir}/src/main/jooq/</jooq.outputdir>
 
-        <skipITs>true</skipITs>
-
-        <version.compiler-plugin>3.13.0</version.compiler-plugin>
-        <version.flyway>9.22.2</version.flyway>
+        <version.flyway>10.17.1</version.flyway>
+        <version.jooq>3.19.11</version.jooq>
         <version.pgsql-jdbc>42.6.0</version.pgsql-jdbc>
-        <version.jooq>3.18.6</version.jooq>
-        <version.build-helper>3.4.0</version.build-helper>
-
-        <version.quarkus.platform>3.13.2</version.quarkus.platform>
-        <version.surefire-plugin>3.2.5</version.surefire-plugin>
+        <version.quarkus.platform>3.14.0.CR1</version.quarkus.platform>
+        <version.surefire-plugin>3.4.0</version.surefire-plugin>
         <version.testcontainers>1.19.0</version.testcontainers>
-
     </properties>
 
     <distributionManagement>
@@ -52,6 +48,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -81,6 +78,16 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-cache</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-mailer</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -101,7 +108,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.17.1</version>
+            <version>3.0.0-beta2</version>
         </dependency>
 
         <dependency>
@@ -109,10 +116,7 @@
             <artifactId>passay</artifactId>
             <version>1.6.4</version>
         </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-mailer</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -144,17 +148,120 @@
             <artifactId>quarkus-test-security-jwt</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
     </dependencies>
+
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.12.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.3.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.3</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.1.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.smallrye</groupId>
+                    <artifactId>jandex-maven-plugin</artifactId>
+                    <version>3.2.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.6.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>${quarkus.platform.group-id}</groupId>
+                    <artifactId>quarkus-maven-plugin</artifactId>
+                    <version>${version.quarkus.platform}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <version>2.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-maven-plugin</artifactId>
+                    <version>${version.flyway}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jooq</groupId>
+                    <artifactId>jooq-codegen-maven</artifactId>
+                    <version>${version.jooq}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-plugin-versions</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,)</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>[3.6.3,)</version>
+                                </requireMavenVersion>
+                                <requirePluginVersions>
+                                    <banLatest>true</banLatest>
+                                    <banRelease>true</banRelease>
+                                    <banSnapshots>true</banSnapshots>
+                                    <phases>clean,deploy,site</phases>
+                                </requirePluginVersions>
+                                <dependencyConvergence/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>io.smallrye</groupId>
                 <artifactId>jandex-maven-plugin</artifactId>
-                <version>3.1.7</version>
                 <executions>
                     <execution>
                         <id>make-index</id>
@@ -167,7 +274,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${version.build-helper}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -185,7 +291,6 @@
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${version.quarkus.platform}</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -199,7 +304,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.surefire-plugin}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -209,7 +313,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${version.surefire-plugin}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -227,16 +330,9 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.compiler-plugin}</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
     <profiles>
         <!-- ======================================================================================================= -->
         <profile>
@@ -253,7 +349,6 @@
                     <plugin>
                         <groupId>org.codehaus.gmaven</groupId>
                         <artifactId>groovy-maven-plugin</artifactId>
-                        <version>2.1.1</version>
                         <executions>
                             <execution>
                                 <id>startdb</id>
@@ -286,7 +381,6 @@
                     <plugin>
                         <groupId>org.flywaydb</groupId>
                         <artifactId>flyway-maven-plugin</artifactId>
-                        <version>${version.flyway}</version>
                         <executions>
                             <execution>
                                 <phase>generate-sources</phase>
@@ -312,7 +406,6 @@
                     <plugin>
                         <groupId>org.jooq</groupId>
                         <artifactId>jooq-codegen-maven</artifactId>
-                        <version>${version.jooq}</version>
                         <executions>
                             <execution>
                                 <phase>generate-sources</phase>

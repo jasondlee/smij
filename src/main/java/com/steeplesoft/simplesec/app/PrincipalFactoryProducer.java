@@ -1,4 +1,4 @@
-package com.steeplesoft.simplesec.app.principal;
+package com.steeplesoft.simplesec.app;
 
 import static com.steeplesoft.simplesec.app.Constants.CACHE_TOKENS;
 

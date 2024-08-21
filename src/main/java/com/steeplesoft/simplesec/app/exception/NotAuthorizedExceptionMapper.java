@@ -1,4 +1,4 @@
-package com.steeplesoft.simplesec.app;
+package com.steeplesoft.simplesec.app.exception;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.NotAuthorizedException;
