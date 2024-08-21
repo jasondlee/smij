@@ -1,3 +1,5 @@
+[![Build and deploy](https://github.com/jasondlee/simplesec/actions/workflows/maven.yml/badge.svg)](https://github.com/jasondlee/simplesec/actions/workflows/maven.yml)
+
 # simplesec
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
