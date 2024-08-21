@@ -1,4 +1,4 @@
-name: Build Steeplesoft Backend
+name: Build and deploy
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up JDK 17
+    - name: Set up JDK
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
