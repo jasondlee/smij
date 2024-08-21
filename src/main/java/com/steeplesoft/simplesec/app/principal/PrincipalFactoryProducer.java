@@ -44,10 +44,8 @@ public class PrincipalFactoryProducer {
     @Priority(1000)
     public JWTCallerPrincipalFactory produce() {
         if (revocationSupport) {
-            System.err.println("blargh: persistent!");
             return new PersistentCallerPrincipalFactory();
         } else {
-            System.err.println("blargh: Normal");
             return new JWTCallerPrincipalFactory() {
                 @Override
                 public JWTCallerPrincipal parse(String token, JWTAuthContextInfo authContextInfo) {

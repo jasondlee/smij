@@ -354,6 +354,19 @@
                                     <pojosToString>true</pojosToString>
                                     <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
                                     <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
+
+                                    <generatedAnnotation>true</generatedAnnotation>
+                                    <generatedAnnotationType>DETECT_FROM_JDK</generatedAnnotationType>
+                                    <generatedAnnotationDate>true</generatedAnnotationDate>
+                                    <generatedAnnotationJooqVersion>true</generatedAnnotationJooqVersion>
+
+                                    <validationAnnotations>true</validationAnnotations>
+
+                                    <nullableAnnotation>true</nullableAnnotation>
+
+                                    <nullableAnnotationType>jakarta.annotation.Nullable</nullableAnnotationType>
+                                    <nonnullAnnotation>true</nonnullAnnotation>
+                                    <nonnullAnnotationType>jakarta.annotation.Nonnull</nonnullAnnotationType>
                                 </generate>
                             </generator>
                         </configuration>

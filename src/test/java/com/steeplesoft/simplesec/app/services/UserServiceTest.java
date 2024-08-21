@@ -79,9 +79,7 @@ public class UserServiceTest {
 
     @Test
     public void lockUserAfterFailAttempts() {
-        System.out.println("users[1] = " + userService.getUsers());
         UserAccount user = userService.saveUser(newUser(UUID.randomUUID() + "@example.com", PASSWORD_GOOD));
-        System.out.println("users[1a] = " + userService.getUsers());
 
         LoginInput loginInput = new LoginInput(user.getUserName(), PASSWORD_BAD);
         for (int i = 0; i < maxAttempts; i++) {
@@ -92,19 +90,15 @@ public class UserServiceTest {
             }
         }
 
-        System.out.println("users[2] = " + userService.getUsers());
-
         user = userService.getUser(loginInput.userName).get();
         assertNotNull(user.getLockedUntil());
     }
 
     @Test
     public void loginLockedUser() {
-        System.out.println("users[3] = " + userService.getUsers());
         UserAccount user = userService.saveUser(newUser(UUID.randomUUID() + "@example.com", PASSWORD_GOOD));
         user.setLockedUntil(OffsetDateTime.MAX.toEpochSecond());
         userService.updateUser(user.getId(), user);
-        System.out.println("users[4] = " + userService.getUsers());
 
         LoginInput loginInput = new LoginInput(user.getUserName(), PASSWORD_GOOD);
 
