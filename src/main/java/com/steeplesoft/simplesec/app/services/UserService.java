@@ -46,7 +46,7 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 @ApplicationScoped
 public class UserService {
     @Inject
-    JsonWebToken jwt;
+    protected JsonWebToken jwt;
 
     @Inject
     protected JwtMetadataDao jwtMetadataDao;
@@ -74,12 +74,6 @@ public class UserService {
     protected int lockDuration;
     @ConfigProperty(name = "simplesec.jwt.revocation.support", defaultValue = "false")
     protected boolean revocationSupport;
-    private DSLContext context;
-
-    @PostConstruct
-    public void init() {
-        this.context = DSLContextProvider.getContext();
-    }
 
     public List<UserAccount> getUsers() {
         List<UserAccount> all = userAccountDao.findAll();
@@ -143,17 +137,13 @@ public class UserService {
         checkIfUserLocked(user);
 
         if (!hashString(loginInfo.password).equals(user.getPassword())) {
-            System.err.println("user = " + user);
-            System.err.println("user.getFailAttempts() = " + user.getFailAttempts());
             Integer failAttempts = user.getFailAttempts();
             failAttempts = (failAttempts != null) ? failAttempts + 1 : 1;
             user.setFailAttempts(failAttempts);
-            boolean locked = failAttempts >= maxAttempts;
-            if (locked) {
+            if (failAttempts >= maxAttempts) {
                 user.setLockedUntil(OffsetDateTime.now().plusMinutes(lockDuration).toEpochSecond());
             }
             userAccountDao.update(user);
-            System.out.println(userAccountDao.fetchOptionalByUserName(loginInfo.userName).get());
             return null;
         } else {
             jwtMetadataDao.fetchByUserName(loginInfo.userName)
@@ -190,8 +180,7 @@ public class UserService {
             }
         }
 
-        UserAccount user = userAccountDao.fetchOptionalByUserName(emailAddress)
-                .orElseThrow(NotFoundException::new);
+        UserAccount user = userAccountDao.fetchOptionalByUserName(emailAddress).orElseThrow(NotFoundException::new);
         user.setPassword(hashString(newPassword1));
         user.setLockedUntil(null);
         user.setFailAttempts(0);
@@ -210,8 +199,6 @@ public class UserService {
             if (results.isEmpty()) {
                 user.setPassword(hashString(password));
             } else {
-                System.err.println("password = " + password);
-                System.err.println("results = " + results);
                 throw new WebApplicationException(
                         Response.status(Response.Status.BAD_REQUEST)
                                 .entity("Invalid password:\n" + String.join("\n", results))

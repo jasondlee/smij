@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class MessageService {
     @Inject
-    Mailer mailer;
+    protected Mailer mailer;
 
     public void sendEmail(String recipient, String subject, String body) {
         mailer.send(Mail.withText(recipient, subject, body));
