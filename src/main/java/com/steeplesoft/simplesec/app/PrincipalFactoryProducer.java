@@ -60,7 +60,7 @@ public class PrincipalFactoryProducer {
         }
     }
 
-    private class PersistentCallerPrincipalFactory extends JWTCallerPrincipalFactory {
+    public class PersistentCallerPrincipalFactory extends JWTCallerPrincipalFactory {
 
         @Override
         public JWTCallerPrincipal parse(String token, JWTAuthContextInfo authContextInfo) throws ParseException {

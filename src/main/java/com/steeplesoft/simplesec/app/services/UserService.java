@@ -15,6 +15,8 @@ import java.util.Random;
 import java.util.Set;
 
 import com.steeplesoft.simplesec.app.DSLContextProvider;
+import com.steeplesoft.simplesec.app.RulesConfig;
+import com.steeplesoft.simplesec.app.exception.InvalidTokenException;
 import com.steeplesoft.simplesec.app.exception.LockedAccountException;
 import com.steeplesoft.simplesec.app.exception.UserExistsException;
 import com.steeplesoft.simplesec.app.model.jooq.Sequences;
@@ -31,6 +33,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServerErrorException;
@@ -166,25 +169,30 @@ public class UserService {
     }
 
     @Transactional
-    public void recoverPassword(String emailAddress, String recoveryCode, String newPassword1, String newPassword2) {
+    public void recoverPassword(String emailAddress,
+                                @NotNull String recoveryCode,
+                                String newPassword1,
+                                String newPassword2) {
         if (!newPassword1.equals(newPassword2)) {
             throw new BadRequestException("Passwords do not match");
         }
 
         List<PasswordRecovery> tokens = passwordRecoveryDao.fetchByUserName(emailAddress);
-        if (tokens != null) {
+        if (!tokens.isEmpty()) {
             tokens.sort(Comparator.comparing(PasswordRecovery::getExpiryDate));
             String token = tokens.getLast().getRecoveryToken();
-            if (!token.equals(recoveryCode)) {
-                throw new BadRequestException();
+            if (!Objects.equals(token, recoveryCode)) {
+                throw new InvalidTokenException();
             }
+            UserAccount user = userAccountDao.fetchOptionalByUserName(emailAddress).orElseThrow(NotFoundException::new);
+            user.setPassword(hashString(newPassword1));
+            user.setLockedUntil(null);
+            user.setFailAttempts(0);
+            userAccountDao.update(user);
+        } else {
+            throw new InvalidTokenException();
         }
 
-        UserAccount user = userAccountDao.fetchOptionalByUserName(emailAddress).orElseThrow(NotFoundException::new);
-        user.setPassword(hashString(newPassword1));
-        user.setLockedUntil(null);
-        user.setFailAttempts(0);
-        userAccountDao.update(user);
     }
 
     @Transactional
@@ -238,14 +246,10 @@ public class UserService {
     }
 
     private String generateRecoveryCode() {
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 6;
-
         return new Random()
-                .ints(leftLimit, rightLimit + 1)
+                .ints(48, 123)// '0' to 'z'
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(targetStringLength)
+                .limit(6) // six char length
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString()
                 .toUpperCase();
