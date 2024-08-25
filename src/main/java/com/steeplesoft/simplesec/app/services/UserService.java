@@ -1,6 +1,5 @@
 package com.steeplesoft.simplesec.app.services;
 
-import static com.steeplesoft.simplesec.app.model.jooq.Sequences.USER_ACCOUNT_SEQ;
 import static io.quarkus.runtime.util.HashUtil.sha256;
 
 import java.nio.charset.StandardCharsets;
@@ -14,12 +13,10 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
-import com.steeplesoft.simplesec.app.DSLContextProvider;
-import com.steeplesoft.simplesec.app.RulesConfig;
+import com.steeplesoft.simplesec.app.Constants;
 import com.steeplesoft.simplesec.app.exception.InvalidTokenException;
 import com.steeplesoft.simplesec.app.exception.LockedAccountException;
 import com.steeplesoft.simplesec.app.exception.UserExistsException;
-import com.steeplesoft.simplesec.app.model.jooq.Sequences;
 import com.steeplesoft.simplesec.app.model.jooq.tables.daos.JwtMetadataDao;
 import com.steeplesoft.simplesec.app.model.jooq.tables.daos.PasswordRecoveryDao;
 import com.steeplesoft.simplesec.app.model.jooq.tables.daos.UserAccountDao;
@@ -29,10 +26,11 @@ import com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.jwt.build.Jwt;
-import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
@@ -41,7 +39,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.jooq.DSLContext;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -78,13 +75,18 @@ public class UserService {
     @ConfigProperty(name = "simplesec.jwt.revocation.support", defaultValue = "false")
     protected boolean revocationSupport;
 
-    public List<UserAccount> getUsers() {
-        List<UserAccount> all = userAccountDao.findAll();
+    public List<UserAccount> getUsers(@Nullable Long tenantId) {
+        List<UserAccount> all =userAccountDao.ctx().selectFrom(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT)
+                .where(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.TENANT_ID.eq(tenantId))
+                .fetch(userAccountDao.mapper());
         all.sort(Comparator.comparing(UserAccount::getId));
         return all;
     }
-
     public Optional<UserAccount> getUser(long id) {
+        return getUser(null, id);
+    }
+
+    public Optional<UserAccount> getUser(Long tenantId, long id) {
         return userAccountDao.fetchOptionalById(id);
     }
 
@@ -115,14 +117,14 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long id, UserAccount userAccount) {
+    public void updateUser(Long id, @Valid UserAccount userAccount) {
         UserAccount existing = userAccountDao.fetchOptionalById(id).orElseThrow(NotFoundException::new);
 
         if (!Objects.equals(userAccount.getId(), existing.getId())) {
             throw new BadRequestException();
         }
 
-        if (!existing.getUserName().equals(userAccount.getUserName()) &&
+        if (!Objects.equals(existing.getUserName(), userAccount.getUserName()) &&
                 userAccountDao.fetchOptionalByUserName(userAccount.getUserName()).isPresent()) {
             throw new UserExistsException();
         }
@@ -220,8 +222,9 @@ public class UserService {
         String token = Jwt.issuer(issuer)
                 .subject(userName)
                 .upn(userName)
+                .claim(Constants.CLAIM_TENANT, user.getTenantId())
                 .expiresIn(Duration.ofMinutes(tokenDuration))
-                .groups(Set.of(user.getRoles().split(",")))
+                .groups(Set.of(getOrDefault(user.getRoles(), "").split(",")))
                 .sign();
 
         if (revocationSupport) {
@@ -239,6 +242,10 @@ public class UserService {
         }
 
         return token;
+    }
+
+    private <T> T getOrDefault(T value, T defaultValue) {
+        return (value != null) ? value : defaultValue;
     }
 
     private String hashString(String password) {

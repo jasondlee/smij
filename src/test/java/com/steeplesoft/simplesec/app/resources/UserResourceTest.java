@@ -81,6 +81,7 @@ public class UserResourceTest {
 
     private void getAllUsers(int expected) {
         given().when()
+                .contentType(ContentType.JSON)
                 .get("/")
                 .then()
                 .statusCode(expected);

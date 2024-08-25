@@ -28,6 +28,7 @@ public class UserAccount implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private Long tenantId;
     private Long id;
     private String userName;
     private String password;
@@ -45,6 +46,7 @@ public class UserAccount implements Serializable {
     public UserAccount() {}
 
     public UserAccount(UserAccount value) {
+        this.tenantId = value.tenantId;
         this.id = value.id;
         this.userName = value.userName;
         this.password = value.password;
@@ -61,6 +63,7 @@ public class UserAccount implements Serializable {
     }
 
     public UserAccount(
+        @Nullable Long tenantId,
         @Nullable Long id,
         @Nullable String userName,
         @Nullable String password,
@@ -75,6 +78,7 @@ public class UserAccount implements Serializable {
         @Nullable Integer failAttempts,
         @Nullable Long lockedUntil
     ) {
+        this.tenantId = tenantId;
         this.id = id;
         this.userName = userName;
         this.password = password;
@@ -88,6 +92,22 @@ public class UserAccount implements Serializable {
         this.creationDate = creationDate;
         this.failAttempts = failAttempts;
         this.lockedUntil = lockedUntil;
+    }
+
+    /**
+     * Getter for <code>public.user_account.tenant_id</code>.
+     */
+    @Nullable
+    public Long getTenantId() {
+        return this.tenantId;
+    }
+
+    /**
+     * Setter for <code>public.user_account.tenant_id</code>.
+     */
+    public UserAccount setTenantId(@Nullable Long tenantId) {
+        this.tenantId = tenantId;
+        return this;
     }
 
     /**
@@ -316,6 +336,12 @@ public class UserAccount implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         final UserAccount other = (UserAccount) obj;
+        if (this.tenantId == null) {
+            if (other.tenantId != null)
+                return false;
+        }
+        else if (!this.tenantId.equals(other.tenantId))
+            return false;
         if (this.id == null) {
             if (other.id != null)
                 return false;
@@ -401,6 +427,7 @@ public class UserAccount implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((this.tenantId == null) ? 0 : this.tenantId.hashCode());
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
         result = prime * result + ((this.userName == null) ? 0 : this.userName.hashCode());
         result = prime * result + ((this.password == null) ? 0 : this.password.hashCode());
@@ -421,7 +448,8 @@ public class UserAccount implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder("UserAccount (");
 
-        sb.append(id);
+        sb.append(tenantId);
+        sb.append(", ").append(id);
         sb.append(", ").append(userName);
         sb.append(", ").append(password);
         sb.append(", ").append(phoneNumber);

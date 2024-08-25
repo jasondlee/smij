@@ -4,6 +4,7 @@
 package com.steeplesoft.simplesec.app.model.jooq.tables;
 
 
+import com.steeplesoft.simplesec.app.model.jooq.Indexes;
 import com.steeplesoft.simplesec.app.model.jooq.Keys;
 import com.steeplesoft.simplesec.app.model.jooq.Public;
 import com.steeplesoft.simplesec.app.model.jooq.tables.records.UserAccountRecord;
@@ -21,6 +22,7 @@ import javax.annotation.processing.Generated;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.PlainSQL;
 import org.jooq.QueryPart;
@@ -65,6 +67,11 @@ public class UserAccount extends TableImpl<UserAccountRecord> {
     public Class<UserAccountRecord> getRecordType() {
         return UserAccountRecord.class;
     }
+
+    /**
+     * The column <code>public.user_account.tenant_id</code>.
+     */
+    public final TableField<UserAccountRecord, Long> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.BIGINT, this, "");
 
     /**
      * The column <code>public.user_account.id</code>.
@@ -164,6 +171,12 @@ public class UserAccount extends TableImpl<UserAccountRecord> {
     @Nullable
     public Schema getSchema() {
         return aliased() ? null : Public.PUBLIC;
+    }
+
+    @Override
+    @Nonnull
+    public List<Index> getIndexes() {
+        return Arrays.asList(Indexes.IDX_TENANT_ID, Indexes.IDX_USER_NAME);
     }
 
     @Override

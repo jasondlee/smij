@@ -29,6 +29,7 @@ public class UserServiceTest {
 
     private UserAccount newUser(String userName, String password) {
         UserAccount user = new UserAccount();
+        user.setTenantId(-1L);
         user.setUserName(userName);
         user.setPassword(password);
         

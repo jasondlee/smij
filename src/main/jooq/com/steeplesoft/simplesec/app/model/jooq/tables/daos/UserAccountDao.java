@@ -54,6 +54,23 @@ public class UserAccountDao extends DAOImpl<UserAccountRecord, com.steeplesoft.s
     }
 
     /**
+     * Fetch records that have <code>tenant_id BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    @Nonnull
+    public List<com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount> fetchRangeOfTenantId(Long lowerInclusive, Long upperInclusive) {
+        return fetchRange(UserAccount.USER_ACCOUNT.TENANT_ID, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>tenant_id IN (values)</code>
+     */
+    @Nonnull
+    public List<com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount> fetchByTenantId(Long... values) {
+        return fetch(UserAccount.USER_ACCOUNT.TENANT_ID, values);
+    }
+
+    /**
      * Fetch records that have <code>id BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */

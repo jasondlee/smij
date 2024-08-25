@@ -5,6 +5,7 @@ package com.steeplesoft.simplesec.app.model.jooq;
 
 
 import com.steeplesoft.simplesec.app.model.jooq.tables.FlywaySchemaHistory;
+import com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount;
 
 import javax.annotation.processing.Generated;
 
@@ -32,4 +33,6 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index FLYWAY_SCHEMA_HISTORY_S_IDX = Internal.createIndex(DSL.name("flyway_schema_history_s_idx"), FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, new OrderField[] { FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.SUCCESS }, false);
+    public static final Index IDX_TENANT_ID = Internal.createIndex(DSL.name("idx_tenant_id"), UserAccount.USER_ACCOUNT, new OrderField[] { UserAccount.USER_ACCOUNT.TENANT_ID, UserAccount.USER_ACCOUNT.ID }, false);
+    public static final Index IDX_USER_NAME = Internal.createIndex(DSL.name("idx_user_name"), UserAccount.USER_ACCOUNT, new OrderField[] { UserAccount.USER_ACCOUNT.USER_NAME }, false);
 }

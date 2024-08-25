@@ -34,10 +34,26 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Setter for <code>public.user_account.tenant_id</code>.
+     */
+    public UserAccountRecord setTenantId(@Nullable Long value) {
+        set(0, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.user_account.tenant_id</code>.
+     */
+    @Nullable
+    public Long getTenantId() {
+        return (Long) get(0);
+    }
+
+    /**
      * Setter for <code>public.user_account.id</code>.
      */
     public UserAccountRecord setId(@Nullable Long value) {
-        set(0, value);
+        set(1, value);
         return this;
     }
 
@@ -46,14 +62,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
      */
     @Nullable
     public Long getId() {
-        return (Long) get(0);
+        return (Long) get(1);
     }
 
     /**
      * Setter for <code>public.user_account.user_name</code>.
      */
     public UserAccountRecord setUserName(@Nullable String value) {
-        set(1, value);
+        set(2, value);
         return this;
     }
 
@@ -63,14 +79,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 255)
     @Nullable
     public String getUserName() {
-        return (String) get(1);
+        return (String) get(2);
     }
 
     /**
      * Setter for <code>public.user_account.password</code>.
      */
     public UserAccountRecord setPassword(@Nullable String value) {
-        set(2, value);
+        set(3, value);
         return this;
     }
 
@@ -80,14 +96,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 255)
     @Nullable
     public String getPassword() {
-        return (String) get(2);
+        return (String) get(3);
     }
 
     /**
      * Setter for <code>public.user_account.phone_number</code>.
      */
     public UserAccountRecord setPhoneNumber(@Nullable String value) {
-        set(3, value);
+        set(4, value);
         return this;
     }
 
@@ -97,14 +113,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 50)
     @Nullable
     public String getPhoneNumber() {
-        return (String) get(3);
+        return (String) get(4);
     }
 
     /**
      * Setter for <code>public.user_account.address1</code>.
      */
     public UserAccountRecord setAddress1(@Nullable String value) {
-        set(4, value);
+        set(5, value);
         return this;
     }
 
@@ -114,14 +130,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 100)
     @Nullable
     public String getAddress1() {
-        return (String) get(4);
+        return (String) get(5);
     }
 
     /**
      * Setter for <code>public.user_account.address2</code>.
      */
     public UserAccountRecord setAddress2(@Nullable String value) {
-        set(5, value);
+        set(6, value);
         return this;
     }
 
@@ -131,14 +147,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 100)
     @Nullable
     public String getAddress2() {
-        return (String) get(5);
+        return (String) get(6);
     }
 
     /**
      * Setter for <code>public.user_account.city</code>.
      */
     public UserAccountRecord setCity(@Nullable String value) {
-        set(6, value);
+        set(7, value);
         return this;
     }
 
@@ -148,14 +164,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 100)
     @Nullable
     public String getCity() {
-        return (String) get(6);
+        return (String) get(7);
     }
 
     /**
      * Setter for <code>public.user_account.state</code>.
      */
     public UserAccountRecord setState(@Nullable String value) {
-        set(7, value);
+        set(8, value);
         return this;
     }
 
@@ -165,14 +181,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 10)
     @Nullable
     public String getState() {
-        return (String) get(7);
+        return (String) get(8);
     }
 
     /**
      * Setter for <code>public.user_account.zip_code</code>.
      */
     public UserAccountRecord setZipCode(@Nullable String value) {
-        set(8, value);
+        set(9, value);
         return this;
     }
 
@@ -182,14 +198,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 10)
     @Nullable
     public String getZipCode() {
-        return (String) get(8);
+        return (String) get(9);
     }
 
     /**
      * Setter for <code>public.user_account.roles</code>.
      */
     public UserAccountRecord setRoles(@Nullable String value) {
-        set(9, value);
+        set(10, value);
         return this;
     }
 
@@ -199,14 +215,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     @Size(max = 1000)
     @Nullable
     public String getRoles() {
-        return (String) get(9);
+        return (String) get(10);
     }
 
     /**
      * Setter for <code>public.user_account.creation_date</code>.
      */
     public UserAccountRecord setCreationDate(@Nullable OffsetDateTime value) {
-        set(10, value);
+        set(11, value);
         return this;
     }
 
@@ -215,14 +231,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
      */
     @Nullable
     public OffsetDateTime getCreationDate() {
-        return (OffsetDateTime) get(10);
+        return (OffsetDateTime) get(11);
     }
 
     /**
      * Setter for <code>public.user_account.fail_attempts</code>.
      */
     public UserAccountRecord setFailAttempts(@Nullable Integer value) {
-        set(11, value);
+        set(12, value);
         return this;
     }
 
@@ -231,14 +247,14 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
      */
     @Nullable
     public Integer getFailAttempts() {
-        return (Integer) get(11);
+        return (Integer) get(12);
     }
 
     /**
      * Setter for <code>public.user_account.locked_until</code>.
      */
     public UserAccountRecord setLockedUntil(@Nullable Long value) {
-        set(12, value);
+        set(13, value);
         return this;
     }
 
@@ -247,7 +263,7 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
      */
     @Nullable
     public Long getLockedUntil() {
-        return (Long) get(12);
+        return (Long) get(13);
     }
 
     // -------------------------------------------------------------------------
@@ -274,9 +290,10 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
     /**
      * Create a detached, initialised UserAccountRecord
      */
-    public UserAccountRecord(@Nullable Long id, @Nullable String userName, @Nullable String password, @Nullable String phoneNumber, @Nullable String address1, @Nullable String address2, @Nullable String city, @Nullable String state, @Nullable String zipCode, @Nullable String roles, @Nullable OffsetDateTime creationDate, @Nullable Integer failAttempts, @Nullable Long lockedUntil) {
+    public UserAccountRecord(@Nullable Long tenantId, @Nullable Long id, @Nullable String userName, @Nullable String password, @Nullable String phoneNumber, @Nullable String address1, @Nullable String address2, @Nullable String city, @Nullable String state, @Nullable String zipCode, @Nullable String roles, @Nullable OffsetDateTime creationDate, @Nullable Integer failAttempts, @Nullable Long lockedUntil) {
         super(UserAccount.USER_ACCOUNT);
 
+        setTenantId(tenantId);
         setId(id);
         setUserName(userName);
         setPassword(password);
@@ -300,6 +317,7 @@ public class UserAccountRecord extends UpdatableRecordImpl<UserAccountRecord> {
         super(UserAccount.USER_ACCOUNT);
 
         if (value != null) {
+            setTenantId(value.getTenantId());
             setId(value.getId());
             setUserName(value.getUserName());
             setPassword(value.getPassword());

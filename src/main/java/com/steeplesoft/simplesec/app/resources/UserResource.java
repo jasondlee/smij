@@ -1,5 +1,7 @@
 package com.steeplesoft.simplesec.app.resources;
 
+import static com.steeplesoft.simplesec.app.Constants.CLAIM_TENANT;
+
 import com.steeplesoft.simplesec.app.model.jooq.tables.pojos.UserAccount;
 import com.steeplesoft.simplesec.app.services.UserService;
 
@@ -14,8 +16,11 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.Claim;
+
 import java.util.List;
 
 @Path("/_sec/users")
@@ -26,11 +31,16 @@ public class UserResource {
     @Inject
     protected UserService userService;
 
+    @Inject
+    @Claim(CLAIM_TENANT)
+    protected Long tenantId;
+
     @Path("/")
     @GET
     @RolesAllowed("ADMIN")
     public List<UserAccount> getUsers() {
-        return userService.getUsers();
+        System.err.println("***** tenantId = " + tenantId);
+        return userService.getUsers(tenantId);
     }
 
     @Path("/me")
