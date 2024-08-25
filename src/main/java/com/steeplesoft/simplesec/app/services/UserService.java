@@ -1,5 +1,6 @@
 package com.steeplesoft.simplesec.app.services;
 
+import static com.steeplesoft.simplesec.app.Constants.CLAIM_TENANT;
 import static io.quarkus.runtime.util.HashUtil.sha256;
 
 import java.nio.charset.StandardCharsets;
@@ -27,7 +28,7 @@ import com.steeplesoft.simplesec.app.payload.LoginInput;
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.Nullable;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -38,15 +39,20 @@ import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.Claim;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 
-@ApplicationScoped
+@RequestScoped
 public class UserService {
     @Inject
     protected JsonWebToken jwt;
+
+    @Inject
+    @Claim(CLAIM_TENANT)
+    protected Long tenantId;
 
     @Inject
     protected JwtMetadataDao jwtMetadataDao;
@@ -76,18 +82,31 @@ public class UserService {
     protected boolean revocationSupport;
 
     public List<UserAccount> getUsers(@Nullable Long tenantId) {
-        List<UserAccount> all =userAccountDao.ctx().selectFrom(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT)
-                .where(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.TENANT_ID.eq(tenantId))
+        List<UserAccount> all = userAccountDao.ctx().selectFrom(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT)
+                .where(
+                        (tenantId == null) ?
+                                com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.TENANT_ID.isNull() :
+                                com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.TENANT_ID.eq(tenantId)
+                )
                 .fetch(userAccountDao.mapper());
         all.sort(Comparator.comparing(UserAccount::getId));
         return all;
     }
+
     public Optional<UserAccount> getUser(long id) {
         return getUser(null, id);
     }
 
-    public Optional<UserAccount> getUser(Long tenantId, long id) {
-        return userAccountDao.fetchOptionalById(id);
+    public Optional<UserAccount> getUser(@Nullable Long tenantId, long id) {
+        return Optional.ofNullable(userAccountDao.ctx().selectFrom(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT)
+                .where(
+                        (tenantId == null) ?
+                                com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.TENANT_ID.isNull() :
+                                com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.TENANT_ID.eq(tenantId)
+                )
+                .and(com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount.USER_ACCOUNT.ID.eq(id))
+                .fetchOne(userAccountDao.mapper())
+        );
     }
 
     public Optional<UserAccount> getUser(String userName) {
@@ -111,6 +130,7 @@ public class UserService {
 
         // TODO: Check to see if password has changed
         validatePassword(user);
+        user.setTenantId(tenantId);
         userAccountDao.insert(user);
 
         return user;
@@ -118,6 +138,9 @@ public class UserService {
 
     @Transactional
     public void updateUser(Long id, @Valid UserAccount userAccount) {
+        if (!Objects.equals(tenantId, userAccount.getTenantId())) {
+            throw new BadRequestException("Invalid tenant ID");
+        }
         UserAccount existing = userAccountDao.fetchOptionalById(id).orElseThrow(NotFoundException::new);
 
         if (!Objects.equals(userAccount.getId(), existing.getId())) {
@@ -132,6 +155,7 @@ public class UserService {
         if (!Objects.equals(userAccount.getPassword(), existing.getPassword())) {
             validatePassword(userAccount);
         }
+
         userAccountDao.update(userAccount);
     }
 
@@ -222,7 +246,7 @@ public class UserService {
         String token = Jwt.issuer(issuer)
                 .subject(userName)
                 .upn(userName)
-                .claim(Constants.CLAIM_TENANT, user.getTenantId())
+                .claim(Constants.CLAIM_TENANT, tenantId != null ? tenantId : "")
                 .expiresIn(Duration.ofMinutes(tokenDuration))
                 .groups(Set.of(getOrDefault(user.getRoles(), "").split(",")))
                 .sign();

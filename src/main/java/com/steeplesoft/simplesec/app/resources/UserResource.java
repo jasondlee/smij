@@ -39,7 +39,6 @@ public class UserResource {
     @GET
     @RolesAllowed("ADMIN")
     public List<UserAccount> getUsers() {
-        System.err.println("***** tenantId = " + tenantId);
         return userService.getUsers(tenantId);
     }
 

@@ -44,8 +44,8 @@ create table if not exists jwt_metadata
 
 delete from user_account where tenant_id = -1;
 
-insert into user_account (tenant_id, id, user_name, password, roles) values (-1,-1, 'admin@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN');
-insert into user_account (tenant_id, id, user_name, password, roles) values (-1, -2, 'admin2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN,USER');
-insert into user_account (tenant_id, id, user_name, password, roles) values (-1, -3, 'user@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER');
-insert into user_account (tenant_id, id, user_name, password, roles, locked_until) values (-1, -4, 'locked@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER', 7258118399000);
-insert into user_account (tenant_id, id, user_name, password, roles, locked_until) values (-1, -5, 'locked2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER', 7258118399000);
+insert into user_account (id, user_name, password, roles) values (-1, 'admin@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN');
+insert into user_account (id, user_name, password, roles) values (-2, 'admin2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'ADMIN,USER');
+insert into user_account (id, user_name, password, roles) values (-3, 'user@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER');
+insert into user_account (id, user_name, password, roles, locked_until) values (-4, 'locked@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER', 7258118399000);
+insert into user_account (id, user_name, password, roles, locked_until) values (-5, 'locked2@example.com', '3ed25143e5d856a2e113f3e53f80e1e09927c66c8b9e28908d55f29d59729aa1', 'USER', 7258118399000);
