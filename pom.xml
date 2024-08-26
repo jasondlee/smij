@@ -439,7 +439,7 @@
                                     <fluentSetters>true</fluentSetters>
                                     <sequences>true</sequences>
                                     <pojos>true</pojos>
-                                    <daos>true</daos>
+<!--                                    <daos>true</daos>-->
                                     <pojosToString>true</pojosToString>
                                     <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
                                     <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>

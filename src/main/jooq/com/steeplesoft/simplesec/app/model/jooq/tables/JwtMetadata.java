@@ -11,6 +11,7 @@ import com.steeplesoft.simplesec.app.model.jooq.tables.records.JwtMetadataRecord
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 
 import javax.annotation.processing.Generated;
@@ -70,12 +71,12 @@ public class JwtMetadata extends TableImpl<JwtMetadataRecord> {
     /**
      * The column <code>public.jwt_metadata.user_name</code>.
      */
-    public final TableField<JwtMetadataRecord, String> USER_NAME = createField(DSL.name("user_name"), SQLDataType.VARCHAR(255), this, "");
+    public final TableField<JwtMetadataRecord, String> USER_NAME = createField(DSL.name("user_name"), SQLDataType.VARCHAR(320), this, "");
 
     /**
      * The column <code>public.jwt_metadata.expiry_date</code>.
      */
-    public final TableField<JwtMetadataRecord, Long> EXPIRY_DATE = createField(DSL.name("expiry_date"), SQLDataType.BIGINT, this, "");
+    public final TableField<JwtMetadataRecord, OffsetDateTime> EXPIRY_DATE = createField(DSL.name("expiry_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6), this, "");
 
     /**
      * The column <code>public.jwt_metadata.revoked</code>.

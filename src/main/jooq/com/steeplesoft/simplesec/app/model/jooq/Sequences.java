@@ -28,9 +28,4 @@ public class Sequences {
      * The sequence <code>public.password_recovery_seq</code>
      */
     public static final Sequence<Long> PASSWORD_RECOVERY_SEQ = Internal.createSequence("password_recovery_seq", Public.PUBLIC, SQLDataType.BIGINT.nullable(false), null, null, null, null, false, null);
-
-    /**
-     * The sequence <code>public.user_account_seq</code>
-     */
-    public static final Sequence<Long> USER_ACCOUNT_SEQ = Internal.createSequence("user_account_seq", Public.PUBLIC, SQLDataType.BIGINT.nullable(false), null, null, null, null, false, null);
 }

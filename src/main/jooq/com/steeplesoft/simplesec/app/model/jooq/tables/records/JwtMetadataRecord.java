@@ -11,6 +11,8 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.OffsetDateTime;
+
 import javax.annotation.processing.Generated;
 
 import org.jooq.Record1;
@@ -60,7 +62,7 @@ public class JwtMetadataRecord extends UpdatableRecordImpl<JwtMetadataRecord> {
     /**
      * Getter for <code>public.jwt_metadata.user_name</code>.
      */
-    @Size(max = 255)
+    @Size(max = 320)
     @Nullable
     public String getUserName() {
         return (String) get(1);
@@ -69,7 +71,7 @@ public class JwtMetadataRecord extends UpdatableRecordImpl<JwtMetadataRecord> {
     /**
      * Setter for <code>public.jwt_metadata.expiry_date</code>.
      */
-    public JwtMetadataRecord setExpiryDate(@Nullable Long value) {
+    public JwtMetadataRecord setExpiryDate(@Nullable OffsetDateTime value) {
         set(2, value);
         return this;
     }
@@ -78,8 +80,8 @@ public class JwtMetadataRecord extends UpdatableRecordImpl<JwtMetadataRecord> {
      * Getter for <code>public.jwt_metadata.expiry_date</code>.
      */
     @Nullable
-    public Long getExpiryDate() {
-        return (Long) get(2);
+    public OffsetDateTime getExpiryDate() {
+        return (OffsetDateTime) get(2);
     }
 
     /**
@@ -122,7 +124,7 @@ public class JwtMetadataRecord extends UpdatableRecordImpl<JwtMetadataRecord> {
     /**
      * Create a detached, initialised JwtMetadataRecord
      */
-    public JwtMetadataRecord(@Nonnull String id, @Nullable String userName, @Nullable Long expiryDate, @Nullable Boolean revoked) {
+    public JwtMetadataRecord(@Nonnull String id, @Nullable String userName, @Nullable OffsetDateTime expiryDate, @Nullable Boolean revoked) {
         super(JwtMetadata.JWT_METADATA);
 
         setId(id);

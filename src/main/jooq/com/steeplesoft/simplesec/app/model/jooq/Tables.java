@@ -7,7 +7,6 @@ package com.steeplesoft.simplesec.app.model.jooq;
 import com.steeplesoft.simplesec.app.model.jooq.tables.FlywaySchemaHistory;
 import com.steeplesoft.simplesec.app.model.jooq.tables.JwtMetadata;
 import com.steeplesoft.simplesec.app.model.jooq.tables.PasswordRecovery;
-import com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount;
 
 import javax.annotation.processing.Generated;
 
@@ -39,9 +38,4 @@ public class Tables {
      * The table <code>public.password_recovery</code>.
      */
     public static final PasswordRecovery PASSWORD_RECOVERY = PasswordRecovery.PASSWORD_RECOVERY;
-
-    /**
-     * The table <code>public.user_account</code>.
-     */
-    public static final UserAccount USER_ACCOUNT = UserAccount.USER_ACCOUNT;
 }

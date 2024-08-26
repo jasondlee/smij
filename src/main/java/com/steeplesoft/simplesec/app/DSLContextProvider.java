@@ -4,7 +4,6 @@ import javax.sql.DataSource;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.spi.CDI;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -15,8 +14,6 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultConfiguration;
 
 public class DSLContextProvider {
-    private static DSLContext context;
-
     @SuppressWarnings("CdiInjectionPointsInspection")
     @Produces
     @ApplicationScoped
@@ -35,11 +32,9 @@ public class DSLContextProvider {
                 );
     }
 
-    public static synchronized DSLContext getContext() {
-        if (context == null) {
-            context = DSL.using(CDI.current().select(Configuration.class).get());
-        }
-
-        return context;
+    @Produces
+    @ApplicationScoped
+    public DSLContext getContext(Configuration configuration) {
+        return DSL.using(configuration);
     }
 }

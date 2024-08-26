@@ -3,10 +3,11 @@ package com.steeplesoft.simplesec.app;
 import static com.steeplesoft.simplesec.app.Constants.CACHE_TOKENS;
 
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 
+import com.steeplesoft.simplesec.app.dao.JwtMetadataDao;
 import com.steeplesoft.simplesec.app.exception.InvalidTokenException;
-import com.steeplesoft.simplesec.app.model.jooq.tables.daos.JwtMetadataDao;
 import com.steeplesoft.simplesec.app.model.jooq.tables.pojos.JwtMetadata;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheKey;
@@ -78,10 +79,11 @@ public class PrincipalFactoryProducer {
         }
 
         private void validateTokenMetadata(@CacheKey String jti) {
-            JwtMetadata metadata = jwtMetadataDao.fetchOptionalById(jti).orElseThrow(InvalidTokenException::new);
+            JwtMetadata metadata = jwtMetadataDao.fetchOptionalById(jti)
+                    .orElseThrow(InvalidTokenException::new);
 
             // TZ issues?
-            if (metadata.getRevoked() || metadata.getExpiryDate() < System.currentTimeMillis()) {
+            if (Boolean.TRUE.equals(metadata.getRevoked()) || OffsetDateTime.now().isAfter(metadata.getExpiryDate())) {
                 jwtMetadataDao.delete(metadata);
                 cache.invalidate(jti);
                 throw new InvalidTokenException();

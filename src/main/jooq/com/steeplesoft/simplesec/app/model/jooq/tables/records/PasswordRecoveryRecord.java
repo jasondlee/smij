@@ -10,6 +10,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Size;
 
+import java.time.OffsetDateTime;
+
 import javax.annotation.processing.Generated;
 
 import org.jooq.Record1;
@@ -58,7 +60,7 @@ public class PasswordRecoveryRecord extends UpdatableRecordImpl<PasswordRecovery
     /**
      * Getter for <code>public.password_recovery.user_name</code>.
      */
-    @Size(max = 255)
+    @Size(max = 320)
     @Nullable
     public String getUserName() {
         return (String) get(1);
@@ -84,7 +86,7 @@ public class PasswordRecoveryRecord extends UpdatableRecordImpl<PasswordRecovery
     /**
      * Setter for <code>public.password_recovery.expiry_date</code>.
      */
-    public PasswordRecoveryRecord setExpiryDate(@Nullable Long value) {
+    public PasswordRecoveryRecord setExpiryDate(@Nullable OffsetDateTime value) {
         set(3, value);
         return this;
     }
@@ -93,8 +95,8 @@ public class PasswordRecoveryRecord extends UpdatableRecordImpl<PasswordRecovery
      * Getter for <code>public.password_recovery.expiry_date</code>.
      */
     @Nullable
-    public Long getExpiryDate() {
-        return (Long) get(3);
+    public OffsetDateTime getExpiryDate() {
+        return (OffsetDateTime) get(3);
     }
 
     // -------------------------------------------------------------------------
@@ -121,7 +123,7 @@ public class PasswordRecoveryRecord extends UpdatableRecordImpl<PasswordRecovery
     /**
      * Create a detached, initialised PasswordRecoveryRecord
      */
-    public PasswordRecoveryRecord(@Nullable Long id, @Nullable String userName, @Nullable String recoveryToken, @Nullable Long expiryDate) {
+    public PasswordRecoveryRecord(@Nullable Long id, @Nullable String userName, @Nullable String recoveryToken, @Nullable OffsetDateTime expiryDate) {
         super(PasswordRecovery.PASSWORD_RECOVERY);
 
         setId(id);

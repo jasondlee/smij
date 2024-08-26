@@ -8,6 +8,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 
 import javax.annotation.processing.Generated;
 
@@ -30,7 +31,7 @@ public class PasswordRecovery implements Serializable {
     private Long id;
     private String userName;
     private String recoveryToken;
-    private Long expiryDate;
+    private OffsetDateTime expiryDate;
 
     public PasswordRecovery() {}
 
@@ -45,7 +46,7 @@ public class PasswordRecovery implements Serializable {
         @Nullable Long id,
         @Nullable String userName,
         @Nullable String recoveryToken,
-        @Nullable Long expiryDate
+        @Nullable OffsetDateTime expiryDate
     ) {
         this.id = id;
         this.userName = userName;
@@ -72,7 +73,7 @@ public class PasswordRecovery implements Serializable {
     /**
      * Getter for <code>public.password_recovery.user_name</code>.
      */
-    @Size(max = 255)
+    @Size(max = 320)
     @Nullable
     public String getUserName() {
         return this.userName;
@@ -107,14 +108,14 @@ public class PasswordRecovery implements Serializable {
      * Getter for <code>public.password_recovery.expiry_date</code>.
      */
     @Nullable
-    public Long getExpiryDate() {
+    public OffsetDateTime getExpiryDate() {
         return this.expiryDate;
     }
 
     /**
      * Setter for <code>public.password_recovery.expiry_date</code>.
      */
-    public PasswordRecovery setExpiryDate(@Nullable Long expiryDate) {
+    public PasswordRecovery setExpiryDate(@Nullable OffsetDateTime expiryDate) {
         this.expiryDate = expiryDate;
         return this;
     }

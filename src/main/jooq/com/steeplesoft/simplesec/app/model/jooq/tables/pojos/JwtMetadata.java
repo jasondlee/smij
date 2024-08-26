@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 
 import javax.annotation.processing.Generated;
 
@@ -31,7 +32,7 @@ public class JwtMetadata implements Serializable {
 
     private String id;
     private String userName;
-    private Long expiryDate;
+    private OffsetDateTime expiryDate;
     private Boolean revoked;
 
     public JwtMetadata() {}
@@ -46,7 +47,7 @@ public class JwtMetadata implements Serializable {
     public JwtMetadata(
         @Nonnull String id,
         @Nullable String userName,
-        @Nullable Long expiryDate,
+        @Nullable OffsetDateTime expiryDate,
         @Nullable Boolean revoked
     ) {
         this.id = id;
@@ -75,7 +76,7 @@ public class JwtMetadata implements Serializable {
     /**
      * Getter for <code>public.jwt_metadata.user_name</code>.
      */
-    @Size(max = 255)
+    @Size(max = 320)
     @Nullable
     public String getUserName() {
         return this.userName;
@@ -93,14 +94,14 @@ public class JwtMetadata implements Serializable {
      * Getter for <code>public.jwt_metadata.expiry_date</code>.
      */
     @Nullable
-    public Long getExpiryDate() {
+    public OffsetDateTime getExpiryDate() {
         return this.expiryDate;
     }
 
     /**
      * Setter for <code>public.jwt_metadata.expiry_date</code>.
      */
-    public JwtMetadata setExpiryDate(@Nullable Long expiryDate) {
+    public JwtMetadata setExpiryDate(@Nullable OffsetDateTime expiryDate) {
         this.expiryDate = expiryDate;
         return this;
     }

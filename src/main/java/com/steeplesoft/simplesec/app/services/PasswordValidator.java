@@ -1,10 +1,13 @@
 package com.steeplesoft.simplesec.app.services;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.steeplesoft.simplesec.app.RulesConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-
-import com.steeplesoft.simplesec.app.RulesConfig;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.EnglishSequenceData;
@@ -14,9 +17,6 @@ import org.passay.PasswordData;
 import org.passay.Rule;
 import org.passay.RuleResult;
 import org.passay.WhitespaceRule;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequestScoped
 public class PasswordValidator {
@@ -51,11 +51,7 @@ public class PasswordValidator {
     public List<String> validatePassword(String password) {
         RuleResult results = validator.validate(new PasswordData(password));
 
-        if (results.isValid()) {
-            return List.of();
-        } else {
-            return validator.getMessages(results);
-        }
+        return results.isValid() ? Collections.emptyList() : validator.getMessages(results);
     }
 
 }

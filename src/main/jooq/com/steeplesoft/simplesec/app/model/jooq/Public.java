@@ -7,7 +7,6 @@ package com.steeplesoft.simplesec.app.model.jooq;
 import com.steeplesoft.simplesec.app.model.jooq.tables.FlywaySchemaHistory;
 import com.steeplesoft.simplesec.app.model.jooq.tables.JwtMetadata;
 import com.steeplesoft.simplesec.app.model.jooq.tables.PasswordRecovery;
-import com.steeplesoft.simplesec.app.model.jooq.tables.UserAccount;
 
 import jakarta.annotation.Nonnull;
 
@@ -58,11 +57,6 @@ public class Public extends SchemaImpl {
     public final PasswordRecovery PASSWORD_RECOVERY = PasswordRecovery.PASSWORD_RECOVERY;
 
     /**
-     * The table <code>public.user_account</code>.
-     */
-    public final UserAccount USER_ACCOUNT = UserAccount.USER_ACCOUNT;
-
-    /**
      * No further instances allowed
      */
     private Public() {
@@ -80,8 +74,7 @@ public class Public extends SchemaImpl {
     @Nonnull
     public final List<Sequence<?>> getSequences() {
         return Arrays.asList(
-            Sequences.PASSWORD_RECOVERY_SEQ,
-            Sequences.USER_ACCOUNT_SEQ
+            Sequences.PASSWORD_RECOVERY_SEQ
         );
     }
 
@@ -91,8 +84,7 @@ public class Public extends SchemaImpl {
         return Arrays.asList(
             FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY,
             JwtMetadata.JWT_METADATA,
-            PasswordRecovery.PASSWORD_RECOVERY,
-            UserAccount.USER_ACCOUNT
+            PasswordRecovery.PASSWORD_RECOVERY
         );
     }
 }

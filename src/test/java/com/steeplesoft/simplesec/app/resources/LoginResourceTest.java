@@ -1,16 +1,16 @@
 package com.steeplesoft.simplesec.app.resources;
 
+import static com.steeplesoft.simplesec.app.DummyUserSupplier.PASSWORD_GOOD;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.steeplesoft.simplesec.app.LoginResource;
 import com.steeplesoft.simplesec.app.payload.LoginInput;
 import com.steeplesoft.simplesec.app.payload.PasswordRecoveryInput;
-import com.steeplesoft.simplesec.app.services.UserServiceTest;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -39,7 +39,7 @@ public class LoginResourceTest {
     public void testLogin() throws JsonProcessingException {
         LoginInput form = new LoginInput();
         form.userName = "admin2@example.com";
-        form.password = UserServiceTest.PASSWORD_GOOD;
+        form.password = PASSWORD_GOOD;
 
         given().when()
                 .contentType(ContentType.JSON)
@@ -61,33 +61,6 @@ public class LoginResourceTest {
                 .post("/login")
                 .then()
                 .statusCode(401);
-    }
-
-    @Test
-    public void testRegistration() throws JsonProcessingException {
-        LoginInput form = new LoginInput();
-        form.userName = "newuser@example.com";
-        form.password = UserServiceTest.PASSWORD_GOOD;
-        given().when()
-                .contentType(ContentType.JSON)
-                .body(mapper.writeValueAsString(form))
-                .post("/register")
-                .then()
-                .statusCode(200)
-                .body(containsString("address1"));
-    }
-
-    @Test
-    public void testDuplicateRegistration() throws JsonProcessingException {
-        LoginInput form = new LoginInput();
-        form.userName = "admin@example.com";
-        form.password = UserServiceTest.PASSWORD_GOOD;
-        given().when()
-                .contentType(ContentType.JSON)
-                .body(mapper.writeValueAsString(form))
-                .post("/register")
-                .then()
-                .statusCode(400);
     }
 
     @Test
@@ -114,8 +87,8 @@ public class LoginResourceTest {
         PasswordRecoveryInput recovery = new PasswordRecoveryInput();
         recovery.emailAddress = login.userName;
         recovery.recoveryToken = recoveryCode;
-        recovery.newPassword1 = UserServiceTest.PASSWORD_GOOD;
-        recovery.newPassword2 = UserServiceTest.PASSWORD_GOOD;
+        recovery.newPassword1 = PASSWORD_GOOD;
+        recovery.newPassword2 = PASSWORD_GOOD;
 
         given().when()
                 .contentType(ContentType.JSON)

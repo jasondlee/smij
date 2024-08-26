@@ -1,6 +1,5 @@
 package com.steeplesoft.simplesec.app.exception;
 
-import io.quarkus.security.AuthenticationFailedException;
 import jakarta.ws.rs.NotAuthorizedException;
 
 public class LockedAccountException extends NotAuthorizedException {

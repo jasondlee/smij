@@ -11,6 +11,7 @@ import com.steeplesoft.simplesec.app.model.jooq.tables.records.PasswordRecoveryR
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 
 import javax.annotation.processing.Generated;
@@ -71,7 +72,7 @@ public class PasswordRecovery extends TableImpl<PasswordRecoveryRecord> {
     /**
      * The column <code>public.password_recovery.user_name</code>.
      */
-    public final TableField<PasswordRecoveryRecord, String> USER_NAME = createField(DSL.name("user_name"), SQLDataType.VARCHAR(255), this, "");
+    public final TableField<PasswordRecoveryRecord, String> USER_NAME = createField(DSL.name("user_name"), SQLDataType.VARCHAR(320), this, "");
 
     /**
      * The column <code>public.password_recovery.recovery_token</code>.
@@ -81,7 +82,7 @@ public class PasswordRecovery extends TableImpl<PasswordRecoveryRecord> {
     /**
      * The column <code>public.password_recovery.expiry_date</code>.
      */
-    public final TableField<PasswordRecoveryRecord, Long> EXPIRY_DATE = createField(DSL.name("expiry_date"), SQLDataType.BIGINT, this, "");
+    public final TableField<PasswordRecoveryRecord, OffsetDateTime> EXPIRY_DATE = createField(DSL.name("expiry_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6), this, "");
 
     private PasswordRecovery(Name alias, Table<PasswordRecoveryRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
