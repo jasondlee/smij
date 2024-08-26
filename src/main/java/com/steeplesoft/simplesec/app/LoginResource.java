@@ -14,6 +14,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+@Path("/")
 @RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -22,7 +23,7 @@ public class LoginResource {
     protected LoginService loginService;
 
     @RunOnVirtualThread
-    @Path("/login")
+    @Path("login")
     @POST
     public String login(LoginInput loginInfo) {
         String token = loginService.login(loginInfo);
@@ -33,7 +34,7 @@ public class LoginResource {
     }
 
     @POST
-    @Path("/forgotPassword")
+    @Path("forgotPassword")
     @Produces(MediaType.APPLICATION_JSON)
     public Response forgotPassword(LoginInput loginInfo) {
         loginService.generatePasswordRecoveryCode(loginInfo.userName);
@@ -41,7 +42,7 @@ public class LoginResource {
     }
 
     @POST
-    @Path("/recoverPassword")
+    @Path("recoverPassword")
     public Response recoverPassword(PasswordRecoveryInput input) {
         loginService.recoverPassword(input.emailAddress, input.recoveryToken, input.newPassword1, input.newPassword2);
 
