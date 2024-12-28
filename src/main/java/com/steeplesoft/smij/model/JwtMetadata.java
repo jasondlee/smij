@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 @Entity
 public class JwtMetadata extends PanacheEntityBase {
     @Id
-    @GeneratedValue
     public String id;
     public String emailAddress;
     public OffsetDateTime expiryDate;
@@ -27,7 +26,7 @@ public class JwtMetadata extends PanacheEntityBase {
         metadata.emailAddress = emailAddress;
         metadata.expiryDate = expiresAt;
         metadata.revoked = revoked;
-        metadata.persistAndFlush();
+        metadata.persist();
     }
 
     public static void deleteTokensForUser(String emailAddress) {

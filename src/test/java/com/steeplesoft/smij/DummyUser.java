@@ -6,7 +6,7 @@ import com.steeplesoft.smij.user.UserFacade;
 
 public class DummyUser implements UserFacade {
     private Long id;
-    private Long tenantId;
+    private Long tenantId = 1L;
     private String userName;
     private String password;
     private String roles;
