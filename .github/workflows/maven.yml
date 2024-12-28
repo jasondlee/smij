@@ -34,8 +34,8 @@ jobs:
           ~/.local/share/containers
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
 
-    - name: Build and deploy
-      run: mvn -B -fae clean deploy -Dgithub=true
+    - name: Build and test
+      run: mvn -B -fae clean test -Dgithub=true
 
     - name: Cache Maven packages
       uses: actions/cache/save@v3
