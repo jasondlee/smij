@@ -45,7 +45,7 @@ nb-configuration.xml
 
 config/
 genkey.sh
-simplesec-demo/
+smij-demo/
 src/main/resources/private.pem
 src/main/resources/privateKey.pem
 src/main/resources/public.pem
