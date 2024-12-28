@@ -24,9 +24,6 @@ jobs:
         distribution: 'temurin'
         java-version: 21
         cache: 'maven'
-        server-id: steeplesoft-repository
-        server-username: MAVEN_USERNAME
-        server-password: MAVEN_PASSWORD
 
     - name: Restore cached Maven packages
       id: cache-maven-packages
@@ -39,9 +36,6 @@ jobs:
 
     - name: Build and deploy
       run: mvn -B -fae clean deploy -Dgithub=true
-      env:
-        MAVEN_USERNAME: ${{ secrets.SS_REPO_NAME }}
-        MAVEN_PASSWORD: ${{ secrets.SS_REPO_TOKEN }}
 
     - name: Cache Maven packages
       uses: actions/cache/save@v3
