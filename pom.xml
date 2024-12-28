@@ -48,7 +48,6 @@
     <properties>
         <flyway.password>smij</flyway.password>
         <flyway.user>smij</flyway.user>
-        <jooq.outputdir>${project.basedir}/src/main/jooq/</jooq.outputdir>
 
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.release>21</maven.compiler.release>
@@ -60,7 +59,6 @@
 
         <version.quarkus>3.17.3</version.quarkus>
         <version.quarkus.platform>${version.quarkus}</version.quarkus.platform>
-        <version.jooq>3.19.16</version.jooq>
         <version.jandex>3.2.3</version.jandex>
         <version.flyway>11.0.1</version.flyway>
         <version.r2dbc-spi>1.0.0.RELEASE</version.r2dbc-spi>
@@ -84,21 +82,6 @@
                 <version>${version.quarkus.platform}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq</artifactId>
-                <version>${version.jooq}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq-codegen</artifactId>
-                <version>${version.jooq}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq-meta</artifactId>
-                <version>${version.jooq}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
@@ -149,6 +132,10 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm-panache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-postgresql</artifactId>
         </dependency>
         <dependency>
@@ -168,15 +155,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-meta</artifactId>
         </dependency>
 
         <dependency>
@@ -300,11 +278,6 @@
                     <artifactId>flyway-maven-plugin</artifactId>
                     <version>${version.flyway}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.jooq</groupId>
-                    <artifactId>jooq-codegen-maven</artifactId>
-                    <version>${version.jooq}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -317,23 +290,6 @@
                         <goals>
                             <goal>jandex</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${jooq.outputdir}</source>
-                            </sources>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -435,155 +391,6 @@
     </build>
 
     <profiles>
-        <!-- ======================================================================================================= -->
-        <profile>
-            <id>codegen</id>
-            <activation>
-                <file>
-                    <missing>src/main/jooq</missing>
-                </file>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <defaultGoal>generate-sources</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.gmaven</groupId>
-                        <artifactId>groovy-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>startdb</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <source>
-                                        import org.testcontainers.containers.PostgreSQLContainer
-
-                                        db = new PostgreSQLContainer("postgres:latest")
-                                            .withUsername("${flyway.user}")
-                                            .withDatabaseName("${flyway.user}")
-                                            .withPassword "${flyway.password}"
-                                        db.start()
-                                        project.properties.setProperty('flyway.url', db.getJdbcUrl())
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.testcontainers</groupId>
-                                <artifactId>postgresql</artifactId>
-                                <version>${version.testcontainers}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>com.github.docker-java</groupId>
-                                <artifactId>docker-java-api</artifactId>
-                                <version>3.4.0</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.flywaydb</groupId>
-                        <artifactId>flyway-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>migrate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.postgresql</groupId>
-                                <artifactId>postgresql</artifactId>
-                                <version>${version.pgsql-jdbc}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>com.github.docker-java</groupId>
-                                <artifactId>docker-java-api</artifactId>
-                                <version>3.4.0</version>
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <locations>
-                                <location>filesystem:src/main/resources/db/migration</location>
-                                <location>filesystem:src/test/resources/db/migration</location>
-                            </locations>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.jooq</groupId>
-                        <artifactId>jooq-codegen-maven</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.postgresql</groupId>
-                                <artifactId>postgresql</artifactId>
-                                <version>${version.pgsql-jdbc}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>com.github.docker-java</groupId>
-                                <artifactId>docker-java-api</artifactId>
-                                <version>3.4.0</version>
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <jdbc>
-                                <url>${flyway.url}</url>
-                                <user>${flyway.user}</user>
-                                <password>${flyway.password}</password>
-                                <schema>public</schema>
-                            </jdbc>
-                            <generator>
-                                <database>
-                                    <name>org.jooq.meta.postgres.PostgresDatabase</name>
-                                    <includes>.*</includes>
-                                    <inputSchema>public</inputSchema>
-                                    <outputSchema>public</outputSchema>
-                                </database>
-                                <target>
-                                    <packageName>com.steeplesoft.smij.app.model.jooq</packageName>
-                                    <directory>${jooq.outputdir}</directory>
-                                </target>
-                                <generate>
-                                    <fluentSetters>true</fluentSetters>
-                                    <sequences>true</sequences>
-                                    <pojos>true</pojos>
-                                    <!--                                    <daos>true</daos>-->
-                                    <pojosToString>true</pojosToString>
-                                    <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
-                                    <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
-
-                                    <generatedAnnotation>true</generatedAnnotation>
-                                    <generatedAnnotationType>DETECT_FROM_JDK</generatedAnnotationType>
-                                    <generatedAnnotationDate>true</generatedAnnotationDate>
-                                    <generatedAnnotationJooqVersion>true</generatedAnnotationJooqVersion>
-
-                                    <validationAnnotations>true</validationAnnotations>
-
-                                    <nullableAnnotation>true</nullableAnnotation>
-
-                                    <nullableAnnotationType>jakarta.annotation.Nullable</nullableAnnotationType>
-                                    <nonnullAnnotation>true</nonnullAnnotation>
-                                    <nonnullAnnotationType>jakarta.annotation.Nonnull</nonnullAnnotationType>
-                                </generate>
-                            </generator>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <!-- ======================================================================================================= -->
         <profile>
             <id>native</id>
             <activation>

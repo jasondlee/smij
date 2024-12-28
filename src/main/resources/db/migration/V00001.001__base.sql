@@ -1,18 +1,18 @@
 -- noinspection SqlNoDataSourceInspectionForFile
-create sequence if not exists password_recovery_seq start with 1 increment by 1;
+create sequence if not exists passwordrecovery_seq start with 1 increment by 1;
 
-create table if not exists password_recovery
+create table if not exists passwordrecovery
 (
-    id             bigint DEFAULT nextval('password_recovery_seq') PRIMARY KEY,
-    user_name      varchar(320),
-    recovery_token varchar(6),
-    expiry_date    timestamptz
+    id             bigint DEFAULT nextval('passwordrecovery_seq') PRIMARY KEY,
+    emailAddress   varchar(320),
+    recoveryToken  varchar(6),
+    expiryDate     timestamptz
 );
 
-create table if not exists jwt_metadata
+create table if not exists jwtmetadata
 (
-    id          text not null PRIMARY KEY,
-    user_name   varchar(320),
-    expiry_date timestamptz,
-    revoked     boolean default false
+    id            text not null PRIMARY KEY,
+    emailAddress  varchar(320),
+    expiryDate    timestamptz,
+    revoked       boolean default false
 );
