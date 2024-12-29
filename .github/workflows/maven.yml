@@ -39,7 +39,6 @@ jobs:
 
     - name: Cache Maven packages
       uses: actions/cache/save@v4
-      id: cache-maven-packages
       with:
         path: |
           ~/.m2
