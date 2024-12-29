@@ -14,7 +14,7 @@ public class JwtMetadata extends PanacheEntityBase {
     public String id;
     public String emailAddress;
     public OffsetDateTime expiryDate;
-    public Boolean revoked;
+    public boolean revoked;
 
     public static Optional<JwtMetadata> fetchOptionalById(String id) {
         return find("id", id).firstResultOptional();
