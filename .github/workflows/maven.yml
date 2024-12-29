@@ -26,13 +26,12 @@ jobs:
         cache: 'maven'
 
     - name: Restore cached Maven packages
-      id: cache-maven-packages
       uses: actions/cache/restore@v4
       with:
         path: |
           ~/.m2
           ~/.local/share/containers
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-mvn-${{ hashFiles('**/pom.xml') }}
 
     - name: Build and test
       run: mvn -B -fae clean package -Dgithub=true
@@ -43,12 +42,12 @@ jobs:
         path: |
           ~/.m2
           ~/.local/share/containers
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-mvn-${{ hashFiles('**/pom.xml') }}
 
     - name: Archive artifacts
       uses: actions/upload-artifact@v4
       with:
         name: maven-build-artifacts
-        path: 'target/*.jar'
+        path: '**/target/*.jar'
         retention-days: 5
         if-no-files-found: error
