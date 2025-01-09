@@ -39,6 +39,7 @@ public class LoginResource {
 
     @GET
     @Path("checkToken")
+    @PermitAll
     public Response checkLogin() {
         try {
             tokenValidator.validate(jwt.getTokenID());
