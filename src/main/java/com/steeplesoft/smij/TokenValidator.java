@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import com.steeplesoft.smij.exception.InvalidTokenException;
 import com.steeplesoft.smij.model.JwtMetadata;
+import com.steeplesoft.smij.repository.JwtMetadataRepository;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheName;
@@ -25,6 +26,9 @@ public class TokenValidator {
     @CacheName(CACHE_TOKENS)
     Cache cache;
 
+    @Inject
+    protected JwtMetadataRepository metadataRepository;
+
     public void validate(@CacheKey String jti) {
         try {
             if (!CompletableFuture.supplyAsync(() -> validateToken(jti)).get()) {
@@ -37,7 +41,7 @@ public class TokenValidator {
 
     @ActivateRequestContext
     protected Boolean validateToken(String jti) {
-        Optional<JwtMetadata> optional = JwtMetadata.fetchOptionalById(jti);
+        Optional<JwtMetadata> optional = metadataRepository.fetchOptionalById(jti);
         if (optional.isEmpty()) {
             return false;
         }
@@ -45,7 +49,7 @@ public class TokenValidator {
         // TZ issues?
         if (metadata.revoked ||
             OffsetDateTime.now().isAfter(metadata.expiryDate)) {
-            JwtMetadata.deleteById(metadata.id);
+            metadataRepository.deleteById(metadata.id);
             cache.invalidate(jti).await().atMost(Duration.ofMillis(500));
             return false;
         }

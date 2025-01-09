@@ -14,6 +14,8 @@ import com.steeplesoft.smij.exception.LockedAccountException;
 import com.steeplesoft.smij.model.JwtMetadata;
 import com.steeplesoft.smij.model.PasswordRecovery;
 import com.steeplesoft.smij.payload.LoginInput;
+import com.steeplesoft.smij.repository.JwtMetadataRepository;
+import com.steeplesoft.smij.repository.PasswordRecoverRepository;
 import com.steeplesoft.smij.user.UserFacade;
 import com.steeplesoft.smij.user.UserSupplier;
 import io.quarkus.security.AuthenticationFailedException;
@@ -63,6 +65,12 @@ public class LoginService {
     @Claim(CLAIM_TENANT)
     protected Long tenantId;
 
+    @Inject
+    JwtMetadataRepository jwtMetadataRepository;
+
+    @Inject
+    PasswordRecoverRepository prRepository;
+
     @PostConstruct
     public void init() {
         if (userSupplierInstance.isResolvable()) {
@@ -86,7 +94,7 @@ public class LoginService {
             userSupplier.updateLockAttempts(user, failAttempts, lockedUntil);
             return null;
         } else {
-            JwtMetadata.deleteTokensForUser(loginInfo.userName);
+            jwtMetadataRepository.deleteTokensForUser(loginInfo.userName);
             return generateJwt(user);
         }
     }
@@ -96,7 +104,7 @@ public class LoginService {
         final String recoveryCode = generateRecoveryCode();
 
         messageService.sendEmail(emailAddress, "Password Recovery", "Your code is " + recoveryCode);
-        PasswordRecovery.addRecoveryToken(emailAddress, recoveryCode, OffsetDateTime.now().plusMinutes(5));
+        prRepository.addRecoveryToken(emailAddress, recoveryCode, OffsetDateTime.now().plusMinutes(5));
     }
 
     @Transactional
@@ -108,8 +116,8 @@ public class LoginService {
             throw new BadRequestException("Passwords do not match");
         }
 
-        Optional<PasswordRecovery> optionalPr = PasswordRecovery.find("emailAddress",emailAddress)
-            .firstResultOptional();
+        Optional<PasswordRecovery> optionalPr = prRepository.findByEmailAddress(emailAddress);
+
         if (optionalPr.isEmpty()) {
             throw new InvalidTokenException();
         }
@@ -155,7 +163,7 @@ public class LoginService {
                 .sign();
 
         if (revocationSupport) {
-            JwtMetadata.addToken(jti, userName, expiresAt, false);
+            jwtMetadataRepository.addToken(jti, userName, expiresAt, false);
         }
 
         return token;
